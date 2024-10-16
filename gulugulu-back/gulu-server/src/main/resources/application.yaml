@@ -1,0 +1,13 @@
+server:
+  port: 10001
+spring:
+  application:
+    name: gulu-server
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://43.134.97.111/gulugulu?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
+# mybatisPlus
+mybatis-plus:
+  type-aliases-package: com/zlc/gulu/pojo
