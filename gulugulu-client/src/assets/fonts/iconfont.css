@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4709235 */
-  src: url('iconfont.woff2?t=1728995342962') format('woff2'),
-       url('iconfont.woff?t=1728995342962') format('woff'),
-       url('iconfont.ttf?t=1728995342962') format('truetype');
+  src: url('iconfont.woff2?t=1729075927900') format('woff2'),
+       url('iconfont.woff?t=1729075927900') format('woff'),
+       url('iconfont.ttf?t=1729075927900') format('truetype');
 }
 
 .iconfont {
@@ -13,12 +13,36 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.gulu-gengduo:before {
-  content: "\e629";
+.gulu-nav_xingerebang:before {
+  content: "\e62f";
 }
 
-.gulu-remen1-copy:before {
-  content: "\ec8d";
+.gulu-icon-zhuanlan-zhuanlanwenzhang:before {
+  content: "\e60a";
+}
+
+.gulu-ketang:before {
+  content: "\e60b";
+}
+
+.gulu-ketang1:before {
+  content: "\e674";
+}
+
+.gulu-huodong1:before {
+  content: "\e679";
+}
+
+.gulu-15:before {
+  content: "\e626";
+}
+
+.gulu-shequhuodong:before {
+  content: "\e6bd";
+}
+
+.gulu-gengduo:before {
+  content: "\e629";
 }
 
 .gulu-dianzan_kuai:before {

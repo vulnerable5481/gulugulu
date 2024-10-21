@@ -88,7 +88,39 @@
           ></i>
         </li>
       </ul>
-      <div class="channel-container-right"></div>
+      <ul class="channel-container-right">
+        <li>
+          <a href="#"
+            ><i
+              class="gulu-icon-zhuanlan-zhuanlanwenzhang iconfont"
+              style="font-size: 23px"
+            ></i
+            ><span>专栏</span></a
+          >
+        </li>
+        <li>
+          <a href="#"
+            ><i class="gulu-huodong1 iconfont"></i><span>活动</span></a
+          >
+        </li>
+        <li>
+          <a href="#"
+            ><i class="gulu-shequhuodong iconfont"></i><span>社区中心</span></a
+          >
+        </li>
+        <li>
+          <a href="#"><i class="gulu-15 iconfont"></i><span>直播</span></a>
+        </li>
+        <li>
+          <a href="#"><i class="gulu-ketang1 iconfont"></i><span>课堂</span></a>
+        </li>
+        <li>
+          <a href="#"
+            ><i class="gulu-nav_xingerebang iconfont"></i
+            ><span>新歌热榜</span></a
+          >
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -115,6 +147,7 @@
 
 .channel-icons a {
   display: flex;
+  align-items: center;
   flex-direction: column;
 }
 
@@ -151,14 +184,17 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
+  align-items: center;
   flex: 8;
+  padding-right: 20px;
+  border-right: 1px solid #e2e4e6;
 }
 
 .gulu-header-channel .channel-link {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 90px;
+  width: 5.5rem;
   height: 26px;
   line-height: 26px;
   border-radius: 5px;
@@ -166,17 +202,44 @@
   transition: all 0.3s;
 }
 
+@media (max-width: 1440px) {
+  .gulu-header-channel .channel-link {
+    width: 4.5rem;
+  }
+}
+
 .gulu-header-channel .channel-link:hover {
   background-color: #e2e4e6;
 }
 
 .gulu-header-channel .channel-link a {
-  font-size: 14px;
   color: #61666d;
 }
 
 .channel-container-right {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
   flex: 2;
-  background-color: #f07775;
+}
+
+.channel-container-right li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 26px;
+}
+
+.channel-container-right li a {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #61666d;
+}
+
+.channel-container-right li a i {
+  margin-right: 5px; /* 增加图标和文本之间的间距 */
 }
 </style>

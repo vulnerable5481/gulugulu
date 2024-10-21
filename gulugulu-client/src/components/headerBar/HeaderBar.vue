@@ -49,7 +49,12 @@
     <ul class="right-entry">
       <li>
         <a href="#">
-          <img class="avatar" src="@/assets/img/default.jpg" alt="咕噜咕噜~~" />
+          <img
+            class="avatar"
+            @click="showLogin"
+            src="@/assets/img/default.jpg"
+            alt="咕噜咕噜~~"
+          />
         </a>
       </li>
       <li>
@@ -113,14 +118,38 @@
         </a>
       </li>
     </ul>
+    <!-- 登录界面 -->
+    <el-dialog v-model="loginVisible" width="820" :before-close="handleClose">
+      <LoginOrRegister
+        ref="loginOrRegister"
+      ></LoginOrRegister>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
+import LoginOrRegister from "@/components/loginRegister/LoginOrRegister.vue";
 import { ref } from "vue";
 
 // 搜索内容
 let searchInput = ref("");
+// 是否显示登录界面
+let loginVisible = ref(false);
+//获取组件
+const loginOrRegister = ref();
+
+//显示登录界面
+function showLogin() {
+  loginVisible.value = true;
+}
+
+//退出登录界面
+function handleClose(done) {
+  if (loginOrRegister.value) {
+    loginOrRegister.value.init();
+    done()
+  }
+}
 </script>
 
 <style scoped>
@@ -144,9 +173,7 @@ let searchInput = ref("");
 }
 
 .left-entry li a {
-  color: #fff;
-  font-size: 14px;
-  text-shadow: 0 0 0.5px #fff;
+  color: var(--color-text-main);
   cursor: pointer;
 }
 
@@ -173,6 +200,7 @@ let searchInput = ref("");
 .nav-search-input {
   height: 60%;
   width: 90%;
+  opacity: 0.9;
 }
 
 .nav-search-input ::v-deep .el-input__wrapper {
@@ -251,5 +279,16 @@ let searchInput = ref("");
   width: 40px;
   height: 40px;
   border-radius: 20px;
+  transition: all 0.5s;
+}
+
+.avatar:hover {
+  transform: translateY(30px) scale(2);
+}
+
+::v-deep .el-dialog {
+  padding: 0;
+  position: relative;
+  border-radius: 12px;
 }
 </style>

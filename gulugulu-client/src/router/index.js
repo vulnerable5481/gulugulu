@@ -8,7 +8,6 @@ const routes = [
   //默认路由
   { path: "/", redirect: " " },
   { path: "", name: "index", component: Index, meta: { requestAuth: false } },
-
 ]
 
 //创建路由对象

@@ -7,7 +7,21 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: root
-    url: jdbc:mysql://43.134.97.111/gulugulu?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://43.134.97.111/gulugulu?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8
+# redis
+  redis:
+    host: 43.134.97.111
+    port: 6379
+    password: 1674472827
+    database: 0
+    lettuce:
+      shutdown-timeout: 0ms
+    timeout: 1000
+
 # mybatisPlus
 mybatis-plus:
   type-aliases-package: com/zlc/gulu/pojo
+#  设置日志
+logging:
+  level:
+    com.zlc.gulu: debug

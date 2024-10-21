@@ -6,44 +6,4 @@
 
 <script setup></script>
 
-<style>
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-em,
-i {
-  font-style: normal;
-}
-
-li {
-  list-style: none;
-}
-
-a {
-  text-decoration: none;
-}
-
-img {
-  /* 低版本浏览器兼容 */
-  border: 0;
-  /* 解决图片底部空白缝隙问题 */
-  vertical-align: middle;
-}
-
-button {
-  cursor: pointer;
-}
-
-/* 清除浮动 */
-.clearfix::after {
-  visibility: hidden;
-  clear: both;
-  display: block;
-  content: ".";
-  height: 0;
-}
-</style>
+<style></style>

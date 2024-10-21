@@ -6,18 +6,60 @@
   "description": "个人视频网站项目",
   "glyphs": [
     {
+      "icon_id": "27324237",
+      "name": "nav_新歌热榜",
+      "font_class": "nav_xingerebang",
+      "unicode": "e62f",
+      "unicode_decimal": 58927
+    },
+    {
+      "icon_id": "7401956",
+      "name": "icon-专栏-专栏文章",
+      "font_class": "icon-zhuanlan-zhuanlanwenzhang",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    },
+    {
+      "icon_id": "7884761",
+      "name": "课堂",
+      "font_class": "ketang",
+      "unicode": "e60b",
+      "unicode_decimal": 58891
+    },
+    {
+      "icon_id": "8524609",
+      "name": "课堂",
+      "font_class": "ketang1",
+      "unicode": "e674",
+      "unicode_decimal": 58996
+    },
+    {
+      "icon_id": "10268538",
+      "name": "活动",
+      "font_class": "huodong1",
+      "unicode": "e679",
+      "unicode_decimal": 59001
+    },
+    {
+      "icon_id": "11125636",
+      "name": "直播",
+      "font_class": "15",
+      "unicode": "e626",
+      "unicode_decimal": 58918
+    },
+    {
+      "icon_id": "23317174",
+      "name": "社区活动",
+      "font_class": "shequhuodong",
+      "unicode": "e6bd",
+      "unicode_decimal": 59069
+    },
+    {
       "icon_id": "6337687",
       "name": "更多",
       "font_class": "gengduo",
       "unicode": "e629",
       "unicode_decimal": 58921
-    },
-    {
-      "icon_id": "42131166",
-      "name": "热门",
-      "font_class": "remen1-copy",
-      "unicode": "ec8d",
-      "unicode_decimal": 60557
     },
     {
       "icon_id": "6380878",

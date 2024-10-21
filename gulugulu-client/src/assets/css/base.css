@@ -1,0 +1,23 @@
+@import url("./normalize.css");
+@import url("../fonts/font.css");
+@import url("./global.css");
+
+html {
+  min-width: 1090px;
+}
+
+html {
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -ms-overflow-style: scrollbar;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+body {
+  font-family: "Harmony Font";
+  font-size: 14px;
+  background-color: #fafafa;
+  min-width: 1090px;
+  line-height: 1.25;
+}

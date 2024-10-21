@@ -1,0 +1,15 @@
+:root {
+  --color-text-main: #fff;
+  --font-size-big: 18px;
+}
+
+:root {
+  /* 常态蓝1 */
+  --Bl1: #16a9da;
+  /* 常态蓝2 */
+  --Bl2: #00aeec;
+  /* hover之后变的淡蓝 */
+  --Bl3: #26BAEF;  
+  --GR1: #e3e5e7;
+  --BK1: #505050;
+}
