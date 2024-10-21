@@ -39,6 +39,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
+<!--        letture缓存池-->
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

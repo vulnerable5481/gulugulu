@@ -9,4 +9,5 @@ public class UserVo {
     private String avatar;
     private Integer roleLevel;
     private Integer status;
+    private String token;
 }

@@ -21,18 +21,18 @@ public class UserAccountController {
     private UserService userService;
 
     /*
-    * 用户登录接口
-    * */
+     * 用户登录接口
+     */
     @PostMapping("/login")
-    public Result login(@RequestBody UserLoginVo userLoginVo){
+    public Result login(@RequestBody UserLoginVo userLoginVo) {
         return userService.login(userLoginVo);
     }
 
     /*
-    * 用户注册接口
-    * */
+     * 用户注册接口
+     * */
     @PostMapping("/register")
-    public Result register(@RequestBody UserRegisterVo userRegisterVo ){
+    public Result register(@RequestBody UserRegisterVo userRegisterVo) {
         return userService.register(userRegisterVo);
     }
 }

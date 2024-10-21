@@ -10,6 +10,7 @@ export const useUserStore = defineStore("userinfo", () => {
     avatar: "",
     roleLevel: "",
     status: "",
+    token:''
   });
 
   function setUserInfo(newUser) {

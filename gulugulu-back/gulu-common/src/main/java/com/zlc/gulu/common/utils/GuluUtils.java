@@ -1,5 +1,8 @@
 package com.zlc.gulu.common.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -86,5 +89,33 @@ public class GuluUtils {
             return Array.getLength(obj) == 0;//空数组
         }
         return false;//其他情况不为空
+    }
+
+    /*
+    * bean -> json
+    * */
+    public static String beanToJson(Object obj) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonStr = null;
+        try {
+            jsonStr = objectMapper.writeValueAsString(obj);
+            return jsonStr;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "";//发生异常返回空
+        }
+    }
+
+    /*
+     * json -> bean
+     * */
+    public static <T> T jsonToBean(String json, Class<T> clazz){
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readValue(json, clazz);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;//返回一个空对象
+        }
     }
 }

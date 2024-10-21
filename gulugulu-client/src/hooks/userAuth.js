@@ -52,7 +52,14 @@ export async function handleLogin(user) {
   } else {
     ElMessage.success(`欢迎${data.userName}回来!`);
   }
-  //2.2)设置回显信息
-  const userStore  = useUserStore()
+  //2.2)保存信息
+  const userStore = useUserStore();
   userStore.setUserInfo(data);
+  //2.3)将token保存到本地
+  const token = data.token;
+  if (isEmpty(token)) {
+    //toekn为空,说明缓存未命中，需要设置新token
+    localStorage.setItem("token", token);
+    console.log(localStorage.getItem("token"));
+  }
 }
