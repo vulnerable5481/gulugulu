@@ -9,6 +9,7 @@ import com.zlc.gulu.common.constant.UserConstant;
 import com.zlc.gulu.common.result.Result;
 import com.zlc.gulu.common.utils.GuluUtils;
 import com.zlc.gulu.common.utils.JwtUtils;
+import com.zlc.gulu.common.utils.UserHolder;
 import com.zlc.gulu.pojo.entity.UserEntity;
 import com.zlc.gulu.pojo.vo.UserLoginVo;
 import com.zlc.gulu.pojo.vo.UserRegisterVo;
@@ -50,7 +51,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
                     , UserConstant.UserLoginEnum.USER_REGISTER_NAME_IS_NULL.getMsg());
         }
 
-        //1.2) 根据名字判断是否已注册导致重名
+        //1.2) 判断是否已注册
         UserEntity user = this.getOne(
                 new LambdaQueryWrapper<UserEntity>()
                         .eq(UserEntity::getUserName, userRegisterVo.getUserName())
@@ -95,7 +96,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
         String name = userLoginVo.getUserName();
         String password = userLoginVo.getPassword();
         UserVo userVo = new UserVo();
-        String tokenKey = RedisConstant.LOGIN_TOKEN_USER_KEY;
 
         // 1.检验信息
         if (GuluUtils.isEmpty(name)) {
@@ -109,33 +109,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
 
         // 2.判断用户是否存在
         //2.1)查询缓存
-        //todo:获取真实的token即可
-//        tokenKey = "login:token:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3MzAxMjAyNTMsInVzZXJJZCI6IjMifQ.ne4bbEmujPS_r2jvnWsDiHzXqO6cFLLJUKwvtQYAN_o";
-        Map<Object, Object> entries = stringRedisTemplate.opsForHash().entries(tokenKey);
-        UserEntity userEntity = BeanUtil.toBean(entries, UserEntity.class);
-
-        if (GuluUtils.isEmpty(userEntity.getUserId()) && GuluUtils.isEmpty(userEntity)) {
-            //命中缓存,校验密码
-            String salt = userEntity.getSalt();
-            String pwd = userEntity.getPassword();
-            if (!GuluUtils.verifyPassword(password, salt, pwd)) {
-                return Result.error(UserConstant.UserLoginEnum.USER_LOGIN_SECRET_WRONG.getCode(),
-                        UserConstant.UserLoginEnum.USER_LOGIN_SECRET_WRONG.getMsg());
-            }
-            BeanUtils.copyProperties(userEntity, userVo);
-            return Result.success(userVo);
+        UserVo user = UserHolder.getUser();
+        if (!GuluUtils.isEmpty(user) && !GuluUtils.isEmpty(user.getUserId())) {
+            return Result.success(user);
         }
-        //未命中缓存
-        userEntity = this.getOne(
+        //2.2)查询数据库
+        UserEntity userEntity = this.getOne(
                 new LambdaQueryWrapper<UserEntity>()
                         .eq(UserEntity::getUserName, name)
         );
         if (GuluUtils.isEmpty(userEntity.getUserId()) && GuluUtils.isEmpty(userEntity)) {
-            //数据不存在
             return Result.error(UserConstant.UserLoginEnum.USER_LOGIN_USER_IS_NULL.getCode(),
                     UserConstant.UserLoginEnum.USER_LOGIN_USER_IS_NULL.getMsg());
         }
-        //todo:重复校验密码，后期得优化~~~
         String salt = userEntity.getSalt();
         String pwd = userEntity.getPassword();
         if (!GuluUtils.verifyPassword(password, salt, pwd)) {
@@ -144,22 +130,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
         }
 
         //3.保存用户信息到 redis中
-        //3.1)生成Token
         Map<String, String> claims = new HashMap<>();
         claims.put("userId", userEntity.getUserId().toString());
         String token = JwtUtils.createJWT(claims);
-        //3.2)将user对象转为hashMap存储  todo:研究反射之后，自己亲自完成这个功能，本项目所有用到的方法全部自己来封装！
-        Map<String, Object> userMap = BeanUtil.beanToMap(userEntity, new HashMap<>(),
+        //todo:研究反射之后，自己亲自完成这个功能，本项目所有用到的方法全部自己来封装！
+        BeanUtils.copyProperties(userEntity, userVo);
+        Map<String, Object> userMap = BeanUtil.beanToMap(userVo, new HashMap<>(),
                 CopyOptions.create()
                         .setIgnoreNullValue(true)
                         .setFieldValueEditor((fieldName, fieldValue) -> fieldValue != null ? fieldValue.toString() : null));
-        //3.3)存储
-        tokenKey += token;
+        String tokenKey = RedisConstant.LOGIN_TOKEN_USER_KEY + token;
         stringRedisTemplate.opsForHash().putAll(tokenKey, userMap);
-        //3.4)设置TTL
         stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.MINUTES);
 
-        //4.返回vo
         userVo.setToken(token);
         return Result.success(userVo);
     }

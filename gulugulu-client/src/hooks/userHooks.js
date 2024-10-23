@@ -55,11 +55,9 @@ export async function handleLogin(user) {
   //2.2)保存信息
   const userStore = useUserStore();
   userStore.setUserInfo(data);
-  //2.3)将token保存到本地
+  //2.3)将token更新到本地
   const token = data.token;
-  if (isEmpty(token)) {
-    //toekn为空,说明缓存未命中，需要设置新token
+  if (token) {
     localStorage.setItem("token", token);
-    console.log(localStorage.getItem("token"));
   }
 }

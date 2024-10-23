@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Map;
 
@@ -14,17 +15,18 @@ public class JwtUtils {
     private static final String SING = "efjhHIHiofseKSihfsekHSFed";
 
     /*
-    * 生成token
-    * */
+     * 生成token
+     * */
     public static String createJWT(Map<String, String> claims) {
+        //设置过期时间
         Calendar instance = Calendar.getInstance();
-        // 默认7天过期
-        instance.add(Calendar.DATE, 7);
+        instance.add(Calendar.DATE, 7);// 默认7天过期
 
         //创建jwt builder
         JWTCreator.Builder builder = JWT.create();
 
         // payload
+        claims.put("time", LocalDateTime.now().toString());
         claims.forEach((k, v) -> {
             builder.withClaim(k, v);
         });

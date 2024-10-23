@@ -29,12 +29,6 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.zlc.gulu</groupId>
-            <artifactId>gulu-pojo</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
 <!--        redis-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

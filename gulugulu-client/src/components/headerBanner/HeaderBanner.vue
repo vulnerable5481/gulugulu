@@ -1,6 +1,7 @@
 <template>
   <div class="gulu-header_banner">
     <HeaderBar class="headerBar"></HeaderBar>
+    <!-- 滑动图 -->
     <div
       class="animated-banner"
       ref="animatedBanner"
