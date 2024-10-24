@@ -10,7 +10,12 @@ const AxiosService = axios.create({
 AxiosService.interceptors.request.use(
   (config) => {
     //权限验证
-    const token = localStorage.getItem("token");
+    const s = localStorage.getItem("userInfo");
+    let token = "";
+    if (s) {
+      const userInfo = JSON.parse(s);
+      token = userInfo.token;
+    }
     if (token) {
       config.headers["Authorization"] = `${token}`; //添加token
     }
@@ -26,8 +31,7 @@ AxiosService.interceptors.request.use(
 AxiosService.interceptors.response.use(
   (res) => {
     // 这里用于处理返回的结果，比如如果是返回401无权限，可能会是跳回到登录页的操作，结合自己的业务逻辑写
-    if(res.status == 401){
-      
+    if (res.status == 401) {
     }
     return res;
   },

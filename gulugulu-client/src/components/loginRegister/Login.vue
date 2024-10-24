@@ -16,6 +16,7 @@
     show-password
     @focus="handlechangeImg(1)"
     @blur="handlechangeImg(0)"
+    @keydown.enter="handleBeforeLogin"
   >
     <template #prepend>
       <span class="form_info">密码</span>
@@ -60,7 +61,7 @@ function handleBeforeLogin() {
 
 <style scoped>
 .form_info {
-  color: var(--BK1);
+  color: var(--BK2);
 }
 
 .el-icon ::v-depp svg {

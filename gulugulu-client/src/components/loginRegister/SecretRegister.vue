@@ -67,7 +67,7 @@ const handlechangeImg = (imgData) => {
 
 <style scoped>
 .form_info {
-  color: var(--BK1);
+  color: var(--BK2);
 }
 
 .el-icon ::v-depp svg {

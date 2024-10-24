@@ -6,6 +6,41 @@
   "description": "个人视频网站项目",
   "glyphs": [
     {
+      "icon_id": "11032210",
+      "name": "消息",
+      "font_class": "xiaoxi",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "423809",
+      "name": "历史轨迹",
+      "font_class": "lishiguiji",
+      "unicode": "e6c7",
+      "unicode_decimal": 59079
+    },
+    {
+      "icon_id": "996913",
+      "name": "右右",
+      "font_class": "left-arrow",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "1029274",
+      "name": "右右",
+      "font_class": "right-arrow",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
+      "icon_id": "4565292",
+      "name": "中心动态",
+      "font_class": "zhongxindongtai",
+      "unicode": "e63d",
+      "unicode_decimal": 58941
+    },
+    {
       "icon_id": "27324237",
       "name": "nav_新歌热榜",
       "font_class": "nav_xingerebang",
@@ -111,13 +146,6 @@
       "unicode_decimal": 58887
     },
     {
-      "icon_id": "6447205",
-      "name": "消息",
-      "font_class": "xiaoxi",
-      "unicode": "e650",
-      "unicode_decimal": 58960
-    },
-    {
       "icon_id": "22186257",
       "name": "B站-个人认证",
       "font_class": "gepingtailogo-08",
@@ -132,25 +160,11 @@
       "unicode_decimal": 58884
     },
     {
-      "icon_id": "39245965",
-      "name": "黑色B站导航图标-轮廓化描边-07",
-      "font_class": "heiseBzhandaohangtubiao-lunkuohuamiaobian-07",
-      "unicode": "e605",
-      "unicode_decimal": 58885
-    },
-    {
       "icon_id": "39245969",
       "name": "黑色B站导航图标-轮廓化描边-06-06",
       "font_class": "heiseBzhandaohangtubiao-lunkuohuamiaobian-06-06",
       "unicode": "e606",
       "unicode_decimal": 58886
-    },
-    {
-      "icon_id": "40052715",
-      "name": "黑色B站导航图标-轮廓化描边-03-copy",
-      "font_class": "heiseBzhandaohangtubiao-lunkuohuamiaobian-03",
-      "unicode": "e603",
-      "unicode_decimal": 58883
     },
     {
       "icon_id": "838835",

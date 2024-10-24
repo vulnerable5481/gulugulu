@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4709235 */
-  src: url('iconfont.woff2?t=1729075927900') format('woff2'),
-       url('iconfont.woff?t=1729075927900') format('woff'),
-       url('iconfont.ttf?t=1729075927900') format('truetype');
+  src: url('iconfont.woff2?t=1729695607302') format('woff2'),
+       url('iconfont.woff?t=1729695607302') format('woff'),
+       url('iconfont.ttf?t=1729695607302') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,26 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.gulu-xiaoxi:before {
+  content: "\e614";
+}
+
+.gulu-lishiguiji:before {
+  content: "\e6c7";
+}
+
+.gulu-left-arrow:before {
+  content: "\e60c";
+}
+
+.gulu-right-arrow:before {
+  content: "\e620";
+}
+
+.gulu-zhongxindongtai:before {
+  content: "\e63d";
 }
 
 .gulu-nav_xingerebang:before {
@@ -73,10 +93,6 @@
   content: "\e607";
 }
 
-.gulu-xiaoxi:before {
-  content: "\e650";
-}
-
 .gulu-gepingtailogo-08:before {
   content: "\e601";
 }
@@ -85,16 +101,8 @@
   content: "\e604";
 }
 
-.gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-07:before {
-  content: "\e605";
-}
-
 .gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-06-06:before {
   content: "\e606";
-}
-
-.gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-03:before {
-  content: "\e603";
 }
 
 .gulu-sousuo:before {

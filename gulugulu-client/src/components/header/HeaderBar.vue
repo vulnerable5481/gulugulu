@@ -1,5 +1,8 @@
 <template>
-  <div class="gulu-header-bar">
+  <div
+    class="gulu-header-bar"
+    :class="props.isFixedHeaderBar ? 'fixed-header-bar' : ''"
+  >
     <!-- 左边 -->
     <ul class="left-entry">
       <li>
@@ -48,14 +51,29 @@
     <!-- 右边 -->
     <ul class="right-entry">
       <li>
-        <a href="#">
+        <!-- 未登录状态 -->
+        <div
+          class="avatar-login"
+          @click="showLogin"
+          v-if="userInfo.userId == ''"
+        >
+          <span>登录</span>
+        </div>
+        <!-- 登录显示头像 -->
+        <div
+          class="avatar-box"
+          @mousemove="handleMouseEnter"
+          @mouseleave="handleMouseLeave"
+          v-else
+        >
           <img
             class="avatar"
-            @click="showLogin"
-            src="@/assets/img/default.jpg"
-            alt="咕噜咕噜~~"
+            :src="userInfo.avatar"
+            :alt="`${userInfo.userName}的头像`"
+            :class="{ 'avatar-big': isAvatarBig }"
           />
-        </a>
+          <div class="avatar-panel" :style="{ display: popoverDisplay }"></div>
+        </div>
       </li>
       <li>
         <a href="#">
@@ -74,10 +92,7 @@
       </li>
       <li>
         <a href="#">
-          <i
-            style="font-size: 20px"
-            class="gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-03 iconfont"
-          ></i>
+          <i style="font-size: 20px" class="gulu-zhongxindongtai iconfont"></i>
           <span>动态</span>
         </a>
       </li>
@@ -92,10 +107,7 @@
       </li>
       <li>
         <a href="#">
-          <i
-            style="font-size: 19px"
-            class="gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-07 iconfont"
-          ></i>
+          <i style="font-size: 19px" class="gulu-lishiguiji iconfont"></i>
           <span>历史</span>
         </a>
       </li>
@@ -120,60 +132,124 @@
     </ul>
     <!-- 登录界面 -->
     <el-dialog v-model="loginVisible" width="820" :before-close="handleClose">
-      <LoginOrRegister
-        ref="loginOrRegister"
-      ></LoginOrRegister>
+      <LoginOrRegister ref="loginOrRegister"></LoginOrRegister>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
 import LoginOrRegister from "@/components/loginRegister/LoginOrRegister.vue";
-import { ref } from "vue";
+import { useUserStore } from "@/store/index.js";
+import { storeToRefs } from "pinia";
+import { computed, ref } from "vue";
 
+const props = defineProps({
+  isFixedHeaderBar: {
+    type: Boolean,
+    default: false,
+  },
+});
+// 获取组件
+const loginOrRegister = ref();
+// 获取userStore
+const userStore = useUserStore();
+
+// 登录框的显隐藏
+let loginVisible = ref(false);
+// 头像气泡框的显隐
+let isAvatarBig = ref(false);
+let popoverDisplay = ref("none");
+
+// 节流计时器
+let inTimer;
+let outTimer;
 // 搜索内容
 let searchInput = ref("");
-// 是否显示登录界面
-let loginVisible = ref(false);
-//获取组件
-const loginOrRegister = ref();
+// 用户信息
+const { userInfo } = storeToRefs(userStore);
 
-//显示登录界面
+// 显示登录界面
 function showLogin() {
   loginVisible.value = true;
 }
-
-//退出登录界面
+// 退出登录界面
 function handleClose(done) {
   if (loginOrRegister.value) {
     loginOrRegister.value.init();
-    done()
+    done();
   }
+}
+
+// 悬浮头像时，气泡的显隐
+function handleMouseEnter() {
+  clearTimeout(outTimer); // 这里要清除隐藏的计时器，否则在0.2秒内出入头像，会导致头像变大但气泡突然消失
+  inTimer = setTimeout(() => {
+    popoverDisplay.value = "";
+    isAvatarBig.value = true;
+  }, 100);
+}
+function handleMouseLeave() {
+  clearTimeout(inTimer); // 清除显示计时器防止快速经过头像时的气泡闪烁
+  outTimer = setTimeout(() => {
+    popoverDisplay.value = "none";
+    isAvatarBig.value = false;
+  }, 200);
 }
 </script>
 
 <style scoped>
 .gulu-header-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1002;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
   width: 100%;
+  padding: 0 24px;
   max-width: 2560px;
   height: 64px;
-  z-index: 10;
+}
+
+.fixed-header-bar {
+  position: fixed;
+  top: 0;
+  border-bottom: 1px solid var(--GR1);
+  background-color: #fff;
+}
+
+.fixed-header-bar .left-entry li a {
+  color: var(--BK1);
+}
+.fixed-header-bar .right-entry li i {
+  color: var(--BK1);
+}
+.fixed-header-bar .right-entry li a {
+  color: var(--BK2);
+}
+.fixed-header-bar .right-entry li:last-child i {
+  color: var(--Wt1);
+}
+.fixed-header-bar .right-entry li:last-child a {
+  color: var(--Wt1);
 }
 
 .left-entry {
   display: flex;
-  flex: 1;
   align-items: center;
   justify-content: space-evenly;
+  flex: 1;
   height: 64px;
 }
 
 .left-entry li a {
-  color: var(--color-text-main);
+  color: var(--Wt1);
+  cursor: pointer;
+}
+
+.default-entry {
+  color: var(--Wt1);
   cursor: pointer;
 }
 
@@ -251,7 +327,7 @@ function handleClose(done) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--Wt1);
   font-size: 14px;
   cursor: pointer;
 }
@@ -261,18 +337,24 @@ function handleClose(done) {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--Wt1);
   font-size: 14px;
   cursor: pointer;
-  background-color: #fb7299;
+  background-color: var(--PK1);
   width: 6.25em;
   height: 2.5em;
   border-radius: 6px;
   transition: all 0.5s;
 }
 
+@media (max-width: 1133px) {
+  .right-entry li a span {
+    font-size: 0px;
+  }
+}
+
 .right-entry li:last-child a:hover {
-  background-color: #fc8bab;
+  background-color: var(--PK-Hover1);
 }
 
 .avatar {
@@ -280,10 +362,46 @@ function handleClose(done) {
   height: 40px;
   border-radius: 20px;
   transition: all 0.5s;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
 }
 
-.avatar:hover {
+.avatar-big {
   transform: translateY(30px) scale(2);
+}
+
+.avatar-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  background-color: var(--PK1);
+  border-radius: 20px;
+}
+
+.avatar-login span {
+  color: var(--Wt1);
+}
+
+.avatar-box {
+  position: relative;
+  z-index: 1;
+}
+
+.avatar-panel {
+  position: absolute;
+  top: 50px;
+  left: -130px;
+  width: 300px;
+  height: 475px;
+  background-color: var(--Wt1);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  color: var(--Wt1);
+  z-index: 1; /* 确保它在图片下面 */
 }
 
 ::v-deep .el-dialog {

@@ -2,7 +2,6 @@ import { login, register } from "@/apis/userApi";
 import { useUserStore } from "@/store";
 import { isEmpty } from "@/utils/GuluUtils";
 import { ElMessage } from "element-plus";
-import { storeToRefs } from "pinia";
 
 //用户密码注册
 export async function handleRegister(user) {
@@ -56,8 +55,15 @@ export async function handleLogin(user) {
   const userStore = useUserStore();
   userStore.setUserInfo(data);
   //2.3)将token更新到本地
-  const token = data.token;
-  if (token) {
-    localStorage.setItem("token", token);
-  }
+  if(data){
+    localStorage.setItem("userInfo",JSON.stringify(data))
+  }  
+}
+
+//初始化用户
+export function initUserInfo(){
+  const s = localStorage.getItem("userInfo")
+  const userInfo = JSON.parse(s)
+  const userStore = useUserStore()
+  userStore.setUserInfo(userInfo)
 }

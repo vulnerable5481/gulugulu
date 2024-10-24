@@ -8,7 +8,7 @@
       <span class="form_info">+86</span>
     </template>
     <template #append>
-      <span class="form_info" style="color: var(--BK1);">获取验证码</span>
+      <span class="form_info" style="color: var(--BK2);">获取验证码</span>
     </template>
   </el-input>
   <el-input
@@ -38,7 +38,7 @@ let user = reactive({
 
 <style scoped>
 .form_info {
-  color: var(--BK1);
+  color: var(--BK2);
 }
 
 .el-icon ::v-depp svg {

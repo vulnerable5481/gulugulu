@@ -4,12 +4,26 @@
 }
 
 :root {
+  --Wt1: #fff;
+  --BK1: #18191c;
+  --BK2: #505050;
   /* 常态蓝1 */
   --Bl1: #16a9da;
   /* 常态蓝2 */
   --Bl2: #00aeec;
   /* hover之后变的淡蓝 */
-  --Bl3: #26BAEF;  
+  --Bl3: #26baef;
+  --PK1: #fb7299;
+  --PK-Hover1: #fc8bab;
   --GR1: #e3e5e7;
-  --BK1: #505050;
+  /* 轮播图图片颜色 */
+  --Carimg1: #011469;
+  --Carimg2: blue;
+  --Carimg3: red;
+  --Carimg4: red;
+  --Carimg5: red;
+  --Carimg6: red;
+  --Carimg7: red;
+  --Carimg8: red;
+  --Carimg9: red;
 }

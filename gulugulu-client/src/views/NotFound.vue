@@ -1,5 +1,8 @@
 <template>
   <div class="error-body">
+    <div class="gulu-header">
+      <HeaderBar :isFixedHeaderBar="true"></HeaderBar>
+    </div>
     <div class="error-container">
       <div class="error-panel">
         <img src="@/assets/img/notfound/404notfound.png" alt="咕噜咕噜~~~~" />
@@ -16,6 +19,7 @@
 </template>
 
 <script setup>
+import HeaderBar from "@/components/header/HeaderBar.vue";
 import { computed } from "vue";
 
 let currentImg = computed(() => {
@@ -26,6 +30,7 @@ let currentImg = computed(() => {
 
 <style scoped>
 .error-body {
+  padding-top: 70px;
   width: 100%;
   background-color: #f1f2f3;
 }

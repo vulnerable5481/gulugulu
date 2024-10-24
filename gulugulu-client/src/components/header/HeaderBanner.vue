@@ -1,6 +1,5 @@
 <template>
   <div class="gulu-header_banner">
-    <HeaderBar class="headerBar"></HeaderBar>
     <!-- 滑动图 -->
     <div
       class="animated-banner"
@@ -360,7 +359,7 @@
 </template>
 
 <script setup>
-import HeaderBar from "@/components/headerBar/HeaderBar.vue";
+import HeaderBar from "@/components/header/HeaderBar.vue";
 import { onMounted, ref } from "vue";
 
 // 播放视频的函数
@@ -770,13 +769,6 @@ onMounted(() => {
   min-width: 1000px;
   min-height: 155px;
   height: 9.375vw;
-}
-
-.headerBar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 10;
 }
 
 .animated-banner {

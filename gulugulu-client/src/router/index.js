@@ -1,3 +1,4 @@
+import { initUserInfo } from "@/hooks/userHooks";
 import { createRouter, createWebHashHistory } from "vue-router";
 
 const Index = () => import("../views/Index.vue");
@@ -22,6 +23,13 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
+});
+
+// 全局前置守卫
+router.beforeEach((to, from, next) => {
+  initUserInfo()
+
+  next()
 });
 
 //暴露路由
