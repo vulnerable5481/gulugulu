@@ -1,5 +1,6 @@
 server:
   port: 10001
+
 spring:
   application:
     name: gulu-server
@@ -8,20 +9,61 @@ spring:
     username: root
     password: root
     url: jdbc:mysql://43.134.97.111/gulugulu?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8
-# redis
   redis:
     host: 43.134.97.111
     port: 6379
     password: 1674472827
+    # Redis数据库索引（默认为0）
     database: 0
     lettuce:
       shutdown-timeout: 0ms
-    timeout: 1000
+    # 连接超时时间(毫秒)
+    timeout: 5000
+  servlet:
+    multipart:
+      # 限制单个文件的上传大小
+      max-file-size: 30MB
+      max-request-size: 30MB
+      # 设置懒加载,提高上传性能
+      resolve-lazily: true
 
 # mybatisPlus
 mybatis-plus:
   type-aliases-package: com/zlc/gulu/pojo
+
 #  设置日志
 logging:
   level:
     com.zlc.gulu: debug
+
+directory:
+  # 投稿视频存储目录
+  video: public/video/
+  # 分片存储目录
+  chunk: public/temp/chunk/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

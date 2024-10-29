@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="gulu-header-bar"
-    :class="props.isFixedHeaderBar ? 'fixed-header-bar' : ''"
-  >
+  <div class="gulu-header-bar" :class="props.isFixedHeaderBar ? 'fixed-header-bar' : ''">
     <!-- 左边 -->
     <ul class="left-entry">
       <li>
@@ -36,11 +33,7 @@
     <!-- 中间 -->
     <div class="center-search-container">
       <!-- 搜索框 -->
-      <el-input
-        class="nav-search-input"
-        v-model="searchInput"
-        placeholder="请输入搜索内容"
-      >
+      <el-input class="nav-search-input" v-model="searchInput" placeholder="请输入搜索内容">
         <template #suffix>
           <div class="nav-search-btn">
             <i class="gulu-sousuo iconfont"></i>
@@ -52,35 +45,18 @@
     <ul class="right-entry">
       <li>
         <!-- 未登录状态 -->
-        <div
-          class="avatar-login"
-          @click="showLogin"
-          v-if="userInfo.userId == ''"
-        >
+        <div class="avatar-login" @click="showLogin" v-if="userInfo.userId == ''">
           <span>登录</span>
         </div>
         <!-- 登录显示头像 -->
-        <div
-          class="avatar-box"
-          @mousemove="handleMouseEnter"
-          @mouseleave="handleMouseLeave"
-          v-else
-        >
-          <img
-            class="avatar"
-            :src="userInfo.avatar"
-            :alt="`${userInfo.userName}的头像`"
-            :class="{ 'avatar-big': isAvatarBig }"
-          />
+        <div class="avatar-box" @mousemove="handleMouseEnter" @mouseleave="handleMouseLeave" v-else>
+          <img class="avatar" :src="userInfo.avatar" :alt="`${userInfo.userName}的头像`" :class="{ 'avatar-big': isAvatarBig }" />
           <div class="avatar-panel" :style="{ display: popoverDisplay }"></div>
         </div>
       </li>
       <li>
         <a href="#">
-          <i
-            style="font-size: 21px"
-            class="gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-06-06 iconfont"
-          ></i>
+          <i style="font-size: 21px" class="gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-06-06 iconfont"></i>
           <span>大会员</span>
         </a>
       </li>
@@ -98,10 +74,7 @@
       </li>
       <li>
         <a href="#">
-          <i
-            style="font-size: 20px"
-            class="gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-04 iconfont"
-          ></i>
+          <i style="font-size: 20px" class="gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-04 iconfont"></i>
           <span>收藏</span>
         </a>
       </li>
@@ -113,21 +86,17 @@
       </li>
       <li>
         <a href="#">
-          <i
-            style="font-size: 20px"
-            class="gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-05 iconfont"
-          ></i>
+          <i style="font-size: 20px" class="gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-05 iconfont"></i>
           <span>创作中心</span>
         </a>
       </li>
       <li>
-        <a href="#">
-          <i
-            style="font-size: 21px"
-            class="gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-09 iconfont"
-          ></i>
-          <span>投稿</span>
-        </a>
+        <router-link :to="{ name: 'uploadVideo' }">
+          <a href="#">
+            <i style="font-size: 21px" class="gulu-heiseBzhandaohangtubiao-lunkuohuamiaobian-09 iconfont"></i>
+            <span>投稿</span>
+          </a>
+        </router-link>
       </li>
     </ul>
     <!-- 登录界面 -->
@@ -138,10 +107,10 @@
 </template>
 
 <script setup>
-import LoginOrRegister from "@/components/loginRegister/LoginOrRegister.vue";
-import { useUserStore } from "@/store/index.js";
-import { storeToRefs } from "pinia";
-import { computed, ref } from "vue";
+import LoginOrRegister from '@/components/loginRegister/LoginOrRegister.vue';
+import { useUserStore } from '@/store/index.js';
+import { storeToRefs } from 'pinia';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
   isFixedHeaderBar: {
@@ -158,13 +127,13 @@ const userStore = useUserStore();
 let loginVisible = ref(false);
 // 头像气泡框的显隐
 let isAvatarBig = ref(false);
-let popoverDisplay = ref("none");
+let popoverDisplay = ref('none');
 
 // 节流计时器
 let inTimer;
 let outTimer;
 // 搜索内容
-let searchInput = ref("");
+let searchInput = ref('');
 // 用户信息
 const { userInfo } = storeToRefs(userStore);
 
@@ -184,14 +153,14 @@ function handleClose(done) {
 function handleMouseEnter() {
   clearTimeout(outTimer); // 这里要清除隐藏的计时器，否则在0.2秒内出入头像，会导致头像变大但气泡突然消失
   inTimer = setTimeout(() => {
-    popoverDisplay.value = "";
+    popoverDisplay.value = '';
     isAvatarBig.value = true;
   }, 100);
 }
 function handleMouseLeave() {
   clearTimeout(inTimer); // 清除显示计时器防止快速经过头像时的气泡闪烁
   outTimer = setTimeout(() => {
-    popoverDisplay.value = "none";
+    popoverDisplay.value = 'none';
     isAvatarBig.value = false;
   }, 200);
 }

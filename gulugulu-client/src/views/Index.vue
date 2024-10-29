@@ -15,11 +15,11 @@
 </template>
 
 <script setup>
-import HeaderBanner from "@/components/header/HeaderBanner.vue";
-import HeaderBar from "@/components/header/HeaderBar.vue";
-import HeaderChannel from "@/components/header/HeaderChannel.vue";
-import Layout from "@/components/layout/Layout.vue";
-import { onMounted, ref } from "vue";
+import HeaderBanner from '@/components/header/HeaderBanner.vue';
+import HeaderBar from '@/components/header/HeaderBar.vue';
+import HeaderChannel from '@/components/header/HeaderChannel.vue';
+import Layout from '@/components/layout/Layout.vue';
+import { onMounted, ref } from 'vue';
 
 // 是否是固定导航栏
 let isFixedHeaderBar = ref(false);

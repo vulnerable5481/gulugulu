@@ -34,7 +34,7 @@
 
 <script setup>
 import { reactive } from "vue";
-import { handleLogin } from "@/hooks/userHooks";
+import { handleLogin } from "@/apis/userApi/userApi";
 
 const emit = defineEmits(["changeVisible", "changeImg"]);
 //用户

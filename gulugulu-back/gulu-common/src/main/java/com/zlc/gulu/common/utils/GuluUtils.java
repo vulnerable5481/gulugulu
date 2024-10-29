@@ -3,6 +3,7 @@ package com.zlc.gulu.common.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -12,12 +13,17 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+/*
+ *  咕噜工具类
+ *  author:赵联城
+ *  免责声明：本项目及其所有子引用仅限个人学习使用
+ * */
 public class GuluUtils {
 
     /*
-    * 密码加盐 , 加密密码
-    * */
-    public static String hashPassword(String pwd){
+     * 密码加盐 , 加密密码
+     * */
+    public static String hashPassword(String pwd) {
         //生成盐
         byte[] b = new byte[16];
         Random random = new Random();
@@ -45,9 +51,9 @@ public class GuluUtils {
     }
 
     /*
-    * 判断登录密码是否正确
-    * */
-    public static boolean verifyPassword(String input,String salt,String pwd){
+     * 判断登录密码是否正确
+     * */
+    public static boolean verifyPassword(String input, String salt, String pwd) {
         try {
             // 创建 SHA-256 消息摘要
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -58,7 +64,7 @@ public class GuluUtils {
             String hashedPassword = Base64.getEncoder().encodeToString(hashedBytes);
 
             //密码匹配 允许登录
-            if(hashedPassword.equals(pwd)){
+            if (hashedPassword.equals(pwd)) {
                 return true;
             }
         } catch (NoSuchAlgorithmException e) {
@@ -70,30 +76,30 @@ public class GuluUtils {
     }
 
     /*
-    * 判断非空
-    * */
-    public static boolean isEmpty(Object obj){
-        if(obj == null){
+     * 判断非空
+     * */
+    public static boolean isEmpty(Object obj) {
+        if (obj == null) {
             return true;
         }
-        if(obj instanceof String){
-            return ((String)obj).isEmpty();//空字符串
+        if (obj instanceof String) {
+            return ((String) obj).isEmpty();//空字符串
         }
-        if(obj instanceof Collection){
+        if (obj instanceof Collection) {
             return ((Collection<?>) obj).isEmpty(); // 空集合
         }
-        if(obj instanceof Map<?,?>){
-            return ((Map<?,?>)obj).isEmpty();//空映射
+        if (obj instanceof Map<?, ?>) {
+            return ((Map<?, ?>) obj).isEmpty();//空映射
         }
-        if(obj.getClass().isArray()){
+        if (obj.getClass().isArray()) {
             return Array.getLength(obj) == 0;//空数组
         }
         return false;//其他情况不为空
     }
 
     /*
-    * bean -> json
-    * */
+     * bean -> json
+     * */
     public static String beanToJson(Object obj) {
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonStr = null;
@@ -109,7 +115,7 @@ public class GuluUtils {
     /*
      * json -> bean
      * */
-    public static <T> T jsonToBean(String json, Class<T> clazz){
+    public static <T> T jsonToBean(String json, Class<T> clazz) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.readValue(json, clazz);
@@ -117,5 +123,31 @@ public class GuluUtils {
             e.printStackTrace();
             return null;//返回一个空对象
         }
+    }
+
+    /*
+     *  删除文件/目录及其子目录
+     * */
+    public static boolean deleteDir(String dir) {
+        File file = new File(dir);
+        // 处理空目录
+        if (!file.exists()) {
+            return true;
+        }
+        // 处理文件
+        if (file.isFile()) {
+            return file.delete();
+        }
+        //处理子目录
+        File[] files = file.listFiles();
+        if (files != null) {
+            for (int i = 0; i < files.length; i++) {
+                if(!deleteDir(files[i].getAbsolutePath())){
+                    return false; //删除失败
+                }
+            }
+        }
+        //删除目录本身
+        return file.delete();
     }
 }

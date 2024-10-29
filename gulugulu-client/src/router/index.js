@@ -1,19 +1,22 @@
-import { initUserInfo } from "@/hooks/userHooks";
-import { createRouter, createWebHashHistory } from "vue-router";
+import { initUserInfo } from '@/apis/userApi/userApi';
+import UploadVideo from '@/views/uploadVideo/UploadVideo.vue';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
-const Index = () => import("../views/Index.vue");
-const NotFound = () => import("../views/NotFound.vue");
+const Index = () => import('../views/Index.vue');
+const NotFound = () => import('../views/NotFound.vue');
 
 //路由的默认路径
 const routes = [
   //默认路由
-  { path: "/", redirect: " " },
+  { path: '/', redirect: ' ' },
   //首页路由
-  { path: "", name: "index", component: Index, meta: { requestAuth: false } },
+  { path: '', name: 'index', component: Index, meta: { requestAuth: false } },
+  //投稿路由
+  { path: '/upload/video', name: 'uploadVideo', component: UploadVideo, meta: { requestAuth: false } },
   //404路由
   {
-    path: "/404notfound",
-    name: "notFound",
+    path: '/404notfound',
+    name: 'notFound',
     component: NotFound,
     meta: { requestAuth: false },
   },
@@ -27,9 +30,9 @@ const router = createRouter({
 
 // 全局前置守卫
 router.beforeEach((to, from, next) => {
-  initUserInfo()
+  initUserInfo();
 
-  next()
+  next();
 });
 
 //暴露路由

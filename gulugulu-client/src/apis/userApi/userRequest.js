@@ -1,4 +1,4 @@
-import httpRequest from "@/utils/httRequest.js";
+import httpRequest from "@/network/httRequest.js";
 
 // 用户登录
 export function login(user) {
@@ -17,6 +17,7 @@ export function register(userVO) {
     .post("/user/register", userVO)
     .then((response) => response)
     .catch((err) => {
+      console.log("用户注册失败~~~");
       throw err;
     });
 }

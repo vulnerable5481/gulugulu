@@ -1,6 +1,7 @@
 @import url("./normalize.css");
 @import url("../fonts/font.css");
 @import url("./global.css");
+@import url("./videoCard.css");
 
 html {
   min-width: 1090px;

@@ -1,4 +1,4 @@
-import AxiosService from "./http";
+import AxiosService from '../network/http';
 
 const httpRequest = {
   //封装 GET 请求
@@ -9,10 +9,11 @@ const httpRequest = {
     return AxiosService.get(url, { params })
       .then((response) => response)
       .catch((error) => {
-        console.error("GET 请求失败:", error);
+        console.error('GET 请求失败:', error);
         throw error; //抛出错误，拱调用者处理
       });
   },
+
   //封装 POST 请求
   //POST请求需要在 body里面放入数据
   post(url, data = {}) {
@@ -20,7 +21,21 @@ const httpRequest = {
     return AxiosService.post(url, data)
       .then((response) => response)
       .catch((error) => {
-        console.log("POST请求失败:", error);
+        console.log('POST请求失败:', error);
+        throw error;
+      });
+  },
+
+  // 封装multipart/form-data类型的请求
+  postForm(url, data = {}) {
+    return AxiosService.post(url, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // 确保设置为 multipart/form-data
+      },
+    })
+      .then((response) => response)
+      .catch((error) => {
+        console.log('POST请求失败:', error);
         throw error;
       });
   },

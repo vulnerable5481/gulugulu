@@ -49,7 +49,7 @@
 
 <script setup>
 import { reactive } from "vue";
-import { handleRegister } from "@/hooks/userHooks";
+import { handleRegister } from "@/apis/userApi/userApi";
 
 const emit = defineEmits(["changeImg"]);
 //用户注册信息

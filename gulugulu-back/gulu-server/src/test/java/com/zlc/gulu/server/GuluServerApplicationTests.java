@@ -27,4 +27,9 @@ class GuluServerApplicationTests {
         System.out.println(userEntity);
     }
 
+    @Test
+    void testDeleteFile(){
+
+    }
+
 }
