@@ -34,37 +34,38 @@ function handleupload() {
         formData.append('hash', hash);
         formData.append('size', chunkSize);
         formData.append('total', totalChunks);
-        //上传服务器
-        // 仅在分片 i 为 20 时不上传
-        if (i === 20 || i === 22 || i === 24) {
-          console.warn(`分片 ${i} 被跳过`);
-          continue; // 跳过该分片
-        }
-        uploadVideoChunk(formData).then((response) => {
-          // 出错，断点续传
-          if (i == totalChunks - 1) {
-            const errorIds = response.data.split(',').map(Number); // 转换成数字数组
-            //  重传错误分片
-            for (let j = 0; j < errorIds.length; j++) {
-              const id = errorIds[j];
-              console.log('重传分片:', id);
-              const chunk = chunks[id];
-              const formData = new FormData();
-              formData.append('id', id);
-              formData.append('data', chunk);
-              formData.append('hash', hash);
-              formData.append('size', chunkSize);
-              formData.append('total', totalChunks);
-              uploadVideoChunk(formData);
-            }
-            // 重新合并分片
-            const mergeVo = {
-              hash: hash,
-              total: totalChunks,
-            };
-            mergeFile(mergeVo);
-          }
-        });
+        uploadVideoChunk(formData);
+        //测试重传
+        // // 仅在分片 i 为 20 时不上传
+        // if (i === 20 || i === 22 || i === 24) {
+        //   console.warn(`分片 ${i} 被跳过`);
+        //   continue; // 跳过该分片
+        // }
+        // uploadVideoChunk(formData).then((response) => {
+        //   // 出错，断点续传
+        //   if (i == totalChunks - 1) {
+        //     const errorIds = response.data.split(',').map(Number); // 转换成数字数组
+        //     //  重传错误分片
+        //     for (let j = 0; j < errorIds.length; j++) {
+        //       const id = errorIds[j];
+        //       console.log('重传分片:', id);
+        //       const chunk = chunks[id];
+        //       const formData = new FormData();
+        //       formData.append('id', id);
+        //       formData.append('data', chunk);
+        //       formData.append('hash', hash);
+        //       formData.append('size', chunkSize);
+        //       formData.append('total', totalChunks);
+        //       uploadVideoChunk(formData);
+        //     }
+        //     // 重新合并分片
+        //     const mergeVo = {
+        //       hash: hash,
+        //       total: totalChunks,
+        //     };
+        //     mergeFile(mergeVo);
+        //   }
+        // });
       }
     })
     .catch((error) => {
@@ -129,7 +130,7 @@ function warmUp() {
     .then((response) => response.blob()) // 将响应转换为 Blob
     .then((blob) => {
       const formData = new FormData();
-      formData.append('id', 1);
+      formData.append('id', -1);  // 这里设置 id = -1，所以不会被上传到阿里云
       formData.append('data', blob, 'img1.jpg'); // 添加文件名
       formData.append('hash', hash);
       formData.append('size', blob.size); // 设置文件大小

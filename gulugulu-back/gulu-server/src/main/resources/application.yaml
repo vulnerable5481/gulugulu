@@ -42,6 +42,19 @@ directory:
   # 分片存储目录
   chunk: public/temp/chunk/
 
+oss:
+  # Endpoint
+  endpoint: https://oss-cn-hangzhou.aliyuncs.com
+  # bucketName
+  bucketName: gulugulu-zlc
+  # objectName = objectName + fileName 【别忘了加文件名】
+  objectName: video/
+  # 本地区域
+  region: cn-hangzhou
+
+
+
+
 
 
 

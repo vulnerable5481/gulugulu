@@ -1,5 +1,7 @@
 package com.zlc.gulu.server.service.impl;
 
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.model.*;
 import com.zlc.gulu.common.constant.ErrorConstant;
 import com.zlc.gulu.common.exception.ChunkMergeException;
 import com.zlc.gulu.common.result.Result;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
@@ -18,19 +21,25 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class UploadServiceImp implements UploadService {
 
     @Value("${directory.video}")
-    private String VIDEO_DIRECTORY;     // 投稿视频存储目录
+    private String VIDEO_DIRECTORY;     // 本地投稿视频存储目录 【已弃用】
     @Value("${directory.chunk}")
     private String CHUNK_DIRECTORY;     // 分片存储目录
+    @Value("${oss.bucketName}")
+    String bucketName;
+    @Value("${oss.objectName}")
+    String objectName;
+
+    @Resource
+    private OSS ossClient;
 
     /*
-     * 上传视频分片，本地存储
+     * 上传视频分片-阿里云存储
      * */
     @Override
     public Result uploadChunk(ChunkVo chunkVo) {
@@ -60,24 +69,25 @@ public class UploadServiceImp implements UploadService {
             chunk.transferTo(fullPath);
         } catch (IOException e) {
             log.info("创建临时分片文件夹出错: {}", e.getMessage());
-            return Result.error(ErrorConstant.ErrorEnum.UPLOAD_FAIL_CREATEFILE.getCode(),
-                    ErrorConstant.ErrorEnum.UPLOAD_FAIL_CREATEFILE.getMsg());
+            return Result.error(ErrorConstant.ErrorEnum.UPLOAD_FAIL_CREATEFILE.getCode(), ErrorConstant.ErrorEnum.UPLOAD_FAIL_CREATEFILE.getMsg());
         }
 
         // 合并分片到本地
-        try {
-            if (chunkVo.getId() == total - 1) {
-                mergeChunk(hash, total);
-            }
-        } catch (ChunkMergeException e) {
-            List<Integer> list = e.getList();
-            String s = list.stream().map(String::valueOf) // 将每个Integer转换String
-                    .collect(Collectors.joining(","));// 使用逗号连接成一个字符串
-            clearChunk(hash, true);       // 清除错码视频
-            return Result.error(
-                    ErrorConstant.ErrorEnum.UPLOADS_FAIL_MERGEFILE.getCode(),
-                    ErrorConstant.ErrorEnum.UPLOADS_FAIL_MERGEFILE.getMsg(),
-                    s);
+//        try {
+//            if (chunkVo.getId() == total - 1) {
+//                mergeChunk(hash, total);
+//            }
+//        } catch (ChunkMergeException e) {
+//            List<Integer> list = e.getList();
+//            String s = list.stream().map(String::valueOf) // 将每个Integer转换String
+//                    .collect(Collectors.joining(","));// 使用逗号连接成一个字符串
+//            clearChunk(hash, true);       // 清除错码视频
+//            return Result.error(ErrorConstant.ErrorEnum.UPLOADS_FAIL_MERGEFILE.getCode(), ErrorConstant.ErrorEnum.UPLOADS_FAIL_MERGEFILE.getMsg(), s);
+//        }
+
+        // 合并分片到阿里云OSS
+        if (chunkVo.getId() == total - 1) {
+            uploadChunkToAliOss(hash, total);
         }
 
         // 返回结果
@@ -85,44 +95,9 @@ public class UploadServiceImp implements UploadService {
     }
 
     /*
-     *  上传视频分片，阿里云OSS存储
+     * 文件合并-本地存储 【已弃用】
      * */
-    public Result uploadChunkToAliOss(ChunkVo chunkVo) {
-        Integer id = chunkVo.getId();
-        String hash = chunkVo.getHash();
-        Integer total = chunkVo.getTotal();
-        MultipartFile chunk = chunkVo.getData();
-
-        // 是否极速秒传 【即阿里云OSS里已保存相同视频】
-
-        // 构建临时分片存储目录
-        String chunkDirectory = CHUNK_DIRECTORY + hash + '/';
-        Path cdPath = Paths.get(chunkDirectory);
-        try {
-            // 判断文件夹是否存在
-            if (!Files.exists(cdPath)) {
-                Files.createDirectories(cdPath); // 创建多层文件夹
-            }
-            // 分片存到临时目录
-            String fileName = hash + '-' + chunkVo.getId();
-            Path fullPath = cdPath.resolve(fileName); // 追加文件名
-            chunk.transferTo(fullPath);
-        } catch (IOException e) {
-            log.info("创建临时分片文件夹出错: {}", e.getMessage());
-            return Result.error(ErrorConstant.ErrorEnum.UPLOAD_FAIL_CREATEFILE.getCode(),
-                    ErrorConstant.ErrorEnum.UPLOAD_FAIL_CREATEFILE.getMsg());
-        }
-
-        // 合并分片
-        if(id == total - 1){
-
-        }
-    }
-
-    /*
-     * 合并文件
-     * */
-    //TODO: 使用 RandomAccessFile 配合线程池可以实现并发文件合并,有时间可以优化一下，不过多线程就意味着可能造成数据污染,要用到锁,是很大的挑战
+    //TODO: 配合线程池可以实现并发文件合并,有时间可以优化一下，不过多线程就意味着可能造成数据污染,要用到锁，更繁琐
     public boolean mergeChunk(String hash, int total) {
         // 创建目标文件路径
         String targetPath = VIDEO_DIRECTORY + hash + ".mp4";
@@ -136,8 +111,7 @@ public class UploadServiceImp implements UploadService {
             e.printStackTrace();
         }
 
-        try (FileOutputStream fos = new FileOutputStream(targetPath);
-             FileChannel destChannel = fos.getChannel()) {
+        try (FileOutputStream fos = new FileOutputStream(targetPath); FileChannel destChannel = fos.getChannel()) {
 
             List<Integer> list = new ArrayList<>(); // 存储出错分片
 
@@ -182,6 +156,66 @@ public class UploadServiceImp implements UploadService {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    /*
+     *  文件合并-阿里云存储
+     * */
+    //TODO: 关于阿里云的操作可以整合成一个AliOssUtis，等我以后整理吧 2024-10-30
+    public void uploadChunkToAliOss(String hash, int total) {
+        // 设置合并文件存储目录及文件名
+        objectName += hash + ".mp4";
+
+        // 创建InitiateMultipartUploadRequest对象
+        InitiateMultipartUploadRequest request = new InitiateMultipartUploadRequest(bucketName, objectName);
+
+        // 设置文件类型为 MP4
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType("video/mp4");
+        request.setObjectMetadata(metadata);
+
+        // 初始化分片
+        InitiateMultipartUploadResult upresult = ossClient.initiateMultipartUpload(request);
+        // 返回uploadId
+        String uploadId = upresult.getUploadId();
+
+        try {
+            // partETags是PartETag的集合。PartETag由分片的ETag和分片号组成
+            List<PartETag> partETags = new ArrayList<>();
+            // 分片逐一上传到阿里云
+            for (int i = 0; i < total; i++) {
+                String fileName = CHUNK_DIRECTORY + hash + "/" + hash + "-" + i;
+                File chunkFile = new File(fileName);
+                try (FileInputStream inputStream = new FileInputStream(chunkFile)) {  // 自动关闭inputStream
+                    UploadPartRequest uploadPartRequest = new UploadPartRequest();
+                    //设置基本属性
+                    uploadPartRequest.setBucketName(bucketName);
+                    uploadPartRequest.setKey(objectName);
+                    uploadPartRequest.setUploadId(uploadId);
+                    uploadPartRequest.setPartNumber(i + 1);
+                    uploadPartRequest.setInputStream(inputStream);
+                    uploadPartRequest.setPartSize(chunkFile.length());
+                    PartETag partETag = ossClient.uploadPart(uploadPartRequest).getPartETag();
+                    partETags.add(partETag);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // 完成分片上传
+            CompleteMultipartUploadRequest completeMultipartUploadRequest = new CompleteMultipartUploadRequest(bucketName, objectName, uploadId, partETags);
+            ossClient.completeMultipartUpload(completeMultipartUploadRequest);
+
+            // 清理临时分片目录
+            clearChunk(hash, false);
+
+        } catch (Exception e) {
+            ossClient.abortMultipartUpload(new AbortMultipartUploadRequest(bucketName, objectName, uploadId));
+        } finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
         }
     }
 
