@@ -141,7 +141,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
                         .setFieldValueEditor((fieldName, fieldValue) -> fieldValue != null ? fieldValue.toString() : null));
         String tokenKey = RedisConstant.LOGIN_TOKEN_USER_KEY + token;
         stringRedisTemplate.opsForHash().putAll(tokenKey, userMap);
-        stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.MINUTES);
+            // TODO：redis中保存的用户信息过期，就会导致客户端存储的用户信息携带的token找不到用户导致401
+//        stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.MINUTES);
 
         userVo.setToken(token);
         return Result.success(userVo);

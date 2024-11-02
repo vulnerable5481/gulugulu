@@ -24,7 +24,7 @@
       </div>
     </div>
     <!--  随机推荐,用v-for渲染-->
-    <div class="feed_card" v-for="index in 11" :key="index">
+    <div class="feed_card" v-for="(video, index) in randomVideos" :key="index">
       <transition name="skeleton">
         <div class="video-card">
           <!-- 骨架屏 -->
@@ -39,21 +39,31 @@
           <!-- 实体内容 -->
           <div class="video-card__wrap" v-if="!loadingRandom">
             <div class="video-card_item">
-              <!-- 视频封面 TODO: 视频预览怎么做？-->
-              <a href="#视频地址">
+              <!-- 视频主体 -->
+              <div class="video-body">
                 <picture class="video-card_thumbnail">
-                  <img src="#视频封面" alt="#视频标题" />
-                  <div class="video-card_views"></div>
-                  <div class="video-card_comments"></div>
-                  <div class="duration"></div>
+                  <video
+                    class="video-cover"
+                    ref="videoRefs"
+                    preload="metadata"
+                    @mouseenter="playVideo(index)"
+                    @mouseleave="pauseVideo(index)"
+                  >
+                    <source :src="video.url" type="video/mp4" />
+                  </video>
                 </picture>
-              </a>
+                <div class="video-card_views"></div>
+                <div class="video-card_comments"></div>
+                <div class="duration"></div>
+              </div>
               <!-- 视频底部 -->
-              <div class="vieo-card_footer">
-                <div class="video-card_title"></div>
-                <div :class="'isfollowed' ? 'followed' : 'hide'"></div>
-                <div class="video-card_up"></div>
-                <div class="video-card_date"></div>
+              <div class="video-card_footer">
+                <div class="video-card_title">谭咏麟《爱情陷阱》86万众狂欢演唱会1984年Live全程记录</div>
+                <div class="video-info">
+                  <div :class="'isfollowed' ? 'followed' : 'not-followed'">已关注</div>
+                  <div class="video-card_author video-card-font">迷路的森林狼</div>
+                  <div class="video-card_date video-card-font">·10.29</div>
+                </div>
               </div>
             </div>
           </div>
@@ -64,10 +74,16 @@
 </template>
 
 <script setup>
+import { getRandomViews } from '@/apis/uploadApi/uploadRequest';
 import { computed, onMounted, reactive, ref } from 'vue';
 
-// 是否加载完毕
-let loadingRandom = ref(true);
+// 是否正在加载
+let loadingRandom = ref(false);
+// 随机视频
+let randomVideos = reactive([]);
+// 视频引用数组
+let videoRefs = ref([]);
+
 // 图片集合
 let imgs = reactive([]);
 // 维护轮播图索引
@@ -77,26 +93,22 @@ const currentImg = computed(() => {
   return imgs[currentIndex.value];
 });
 
-// 模拟加载状态切换
-setTimeout(() => {
-  loadingRandom.value = false;
-}, 5000);
-
-//右移
+// 右移
 function rightImg() {
   currentIndex.value++;
   if (currentIndex.value == 9) {
     currentIndex.value = 0;
   }
 }
-//左移
+// 左移
 function leftImg() {
   currentIndex.value--;
   if (currentIndex.value == -1) {
     currentIndex.value = 8;
   }
 }
-function init() {
+// 初始化图片
+function initCarousel() {
   // 初始化轮播图图片
   for (let i = 1; i <= 9; i++) {
     const img = {
@@ -108,8 +120,36 @@ function init() {
   }
 }
 
-onMounted(() => {
-  init();
+// 初始化随机视频
+async function initRandomViews() {
+  const { data } = await getRandomViews();
+  // randomVideos = data;
+  randomVideos.push(...data); // 添加新数据
+}
+
+// 播放视频;
+function playVideo(index) {
+  const videoElement = videoRefs.value[index];
+  if (videoElement) {
+    videoElement.muted = true; // 关闭声音
+    videoElement.src = randomVideos[index].url; // 确保使用对应的视频 URL
+    videoElement.load(); // 强制加载新视频
+    console.log(videoElement.src);
+    videoElement.play();
+  }
+}
+// 停止视频;
+function pauseVideo(index) {
+  const videoElement = videoRefs.value[index];
+  if (videoElement) {
+    videoElement.pause();
+    videoElement.currentTime = 0; // 重置进度
+  }
+}
+
+onMounted(async () => {
+  initCarousel();
+  await initRandomViews();
 });
 </script>
 
@@ -169,5 +209,92 @@ onMounted(() => {
 
 .hide {
   display: none;
+}
+
+.video-card__wrap {
+  width: 100%;
+  height: 100%;
+}
+
+.video-card_item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.video-body {
+  position: relative;
+  flex: 6.5;
+  width: 100%;
+  height: 100%;
+}
+
+.video-card_thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.video-cover {
+  width: 100%;
+  height: 100%;
+  border-radius: 9px;
+}
+
+.video-card_footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 3.5;
+  width: 100%;
+  height: 100%;
+}
+
+.video-card_title {
+  padding-right: 40px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical; /* 设置为垂直盒子布局 */
+  -webkit-line-clamp: 2; /* 限制显示的行数为2 */
+  overflow: hidden; /* 隐藏超出部分 */
+  height: 50px; /* 根据需要设置高度 */
+  line-height: 25px; /* 设置行高 */
+  transition: all 0.3s;
+}
+
+.video-card_title:hover {
+  cursor: pointer;
+  color: #15b5ee;
+}
+
+.video-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 30%;
+  color: #adb1b6;
+  transition: all 0.3s;
+}
+
+.video-info:hover {
+  cursor: pointer;
+  color: #15b5ee;
+}
+
+.followed {
+  background-color: #fff0e3;
+  color: #ff7f2a;
+  border-radius: 4px;
+}
+
+.video-card_author {
+  padding: 0 5px;
 }
 </style>

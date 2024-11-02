@@ -10,6 +10,7 @@ import com.aliyuncs.exceptions.ClientException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 @Configuration
 public class OssConfig {
@@ -24,6 +25,7 @@ public class OssConfig {
     }
 
     @Bean
+    @Scope("prototype")
     public OSS ossClinet() {
         ClientBuilderConfiguration clientBuilderConfiguration = new ClientBuilderConfiguration();
         clientBuilderConfiguration.setSignatureVersion(SignVersion.V4); // 使用V4签名初始化
@@ -36,4 +38,5 @@ public class OssConfig {
                 .build();
         return ossClient;
     }
+
 }

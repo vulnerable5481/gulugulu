@@ -7,7 +7,6 @@ export function uploadVideo(formData) {
     .then((response) => response.data)
     .catch((error) => {
       console.log('上传视频失败~~~');
-      throw error;
     });
 }
 
@@ -18,6 +17,17 @@ export function mergeFile(mergeVo) {
     .then((response) => response)
     .catch((error) => {
       console.log('文件合并失败');
-      throw error;
     });
+}
+
+// 获取随机视频
+export function getRandomViews() {
+  return httpRequest
+  .get("/video/randomViews")
+  .then(response => {
+    return response.data
+  })
+  .catch(error => {
+    console.log("获取随机视频失败")
+  })
 }

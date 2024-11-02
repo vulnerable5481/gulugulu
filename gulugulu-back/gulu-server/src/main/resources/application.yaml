@@ -7,8 +7,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: root
-    url: jdbc:mysql://43.134.97.111/gulugulu?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8
+    password: zlc
+    url: jdbc:mysql://43.134.97.111/gulugulu?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
   redis:
     host: 43.134.97.111
     port: 6379
@@ -49,6 +49,8 @@ oss:
   bucketName: gulugulu-zlc
   # objectName = objectName + fileName 【别忘了加文件名】
   objectName: video/
+  # url
+  bucketUrl: https://gulugulu-zlc.oss-cn-hangzhou.aliyuncs.com/
   # 本地区域
   region: cn-hangzhou
 

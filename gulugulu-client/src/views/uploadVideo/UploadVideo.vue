@@ -1,16 +1,38 @@
 <template>
   <div>
     <input type="file" ref="fileInput" @change="handleupload" />
+    <video
+      width="200px"
+      height="200px"
+      ref="videoElement"
+      controls
+      @mouseenter="play"
+      @mouseleave="close"
+      src="https://gulugulu-zlc.oss-cn-hangzhou.aliyuncs.com/video/20241102/406a5a1deb3d4a000ba4486e70204d60.mp4"
+    ></video>
   </div>
 </template>
 
 <script setup>
 import { uploadVideoChunk } from '@/apis/uploadApi/videoApi';
 import SparkMD5 from 'spark-md5';
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
-import { mergeFile } from '@/apis/uploadApi/uploadRequest';
 
+const videoElement = ref();
+function play() {
+  if (videoElement.value) {
+    videoElement.value.muted = true; // 可选：设置为静音
+    videoElement.value.play();
+  }
+}
+
+function close() {
+  if (videoElement.value) {
+    videoElement.value.pause();
+    videoElement.value.currentTime = 0; // 重置播放时间
+  }
+}
 // 获取DOM
 const fileInput = ref();
 // 定义分片大小
@@ -32,7 +54,6 @@ function handleupload() {
         formData.append('id', i);
         formData.append('data', chunk);
         formData.append('hash', hash);
-        formData.append('size', chunkSize);
         formData.append('total', totalChunks);
         uploadVideoChunk(formData);
         //测试重传
@@ -130,7 +151,7 @@ function warmUp() {
     .then((response) => response.blob()) // 将响应转换为 Blob
     .then((blob) => {
       const formData = new FormData();
-      formData.append('id', -1);  // 这里设置 id = -1，所以不会被上传到阿里云
+      formData.append('id', -1); // 这里设置 id = -1，所以不会被上传到阿里云
       formData.append('data', blob, 'img1.jpg'); // 添加文件名
       formData.append('hash', hash);
       formData.append('size', blob.size); // 设置文件大小

@@ -11,8 +11,6 @@ public class ChunkVo {
     private MultipartFile data;
     //hash
     private String hash;
-    //单一分片大小
-    private Long size;
     //总分片数
     private Integer total;
 }

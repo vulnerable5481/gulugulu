@@ -9,7 +9,7 @@ public class ErrorConstant {
     // 约定 使用 201 - 300 作为无划分错误字段
     public enum ErrorEnum {
         UPLOAD_FAIL_CREATEFILE(201, "创建上传文件夹失败"),
-        UPLOADS_FAIL_MERGEFILE(202, "合并文件夹失败");
+        UPLOADS_FAIL_MERGEFILE(202, "合并分片失败");
 
         ErrorEnum(int code, String msg) {
             this.code = code;
