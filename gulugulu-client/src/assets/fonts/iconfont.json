@@ -6,6 +6,76 @@
   "description": "个人视频网站项目",
   "glyphs": [
     {
+      "icon_id": "4948994",
+      "name": "重新上传",
+      "font_class": "zhongxinshangchuan",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
+      "icon_id": "2815740",
+      "name": "暂停",
+      "font_class": "zanting",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    },
+    {
+      "icon_id": "20447299",
+      "name": "开始",
+      "font_class": "kaishi",
+      "unicode": "e788",
+      "unicode_decimal": 59272
+    },
+    {
+      "icon_id": "1374918",
+      "name": "二次元b",
+      "font_class": "erciyuanb",
+      "unicode": "e64f",
+      "unicode_decimal": 58959
+    },
+    {
+      "icon_id": "5158345",
+      "name": "甜筒",
+      "font_class": "icon_huabanfuben",
+      "unicode": "e762",
+      "unicode_decimal": 59234
+    },
+    {
+      "icon_id": "17695135",
+      "name": "鹤木阳渚",
+      "font_class": "TsurugiHina",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "24767526",
+      "name": "二次元",
+      "font_class": "erciyuan",
+      "unicode": "e605",
+      "unicode_decimal": 58885
+    },
+    {
+      "icon_id": "24767540",
+      "name": "鹤木阳渚",
+      "font_class": "TsurugiHina1",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "29546221",
+      "name": "蕾姆剪影",
+      "font_class": "leimujianying",
+      "unicode": "e60e",
+      "unicode_decimal": 58894
+    },
+    {
+      "icon_id": "40023931",
+      "name": "鹤木阳渚-copy",
+      "font_class": "TsurugiHina2",
+      "unicode": "e60f",
+      "unicode_decimal": 58895
+    },
+    {
       "icon_id": "11032210",
       "name": "消息",
       "font_class": "xiaoxi",

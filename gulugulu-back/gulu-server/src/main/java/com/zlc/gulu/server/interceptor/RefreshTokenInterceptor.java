@@ -42,7 +42,7 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
         //保存用户
         UserHolder.saveUser(userVo);
         //刷新token
-        stringRedisTemplate.expire(key, RedisConstant.LOGIN_USER_TTL, TimeUnit.MINUTES);
+        stringRedisTemplate.expire(key, RedisConstant.LOGIN_USER_TTL, TimeUnit.DAYS);
 
         return true;
     }

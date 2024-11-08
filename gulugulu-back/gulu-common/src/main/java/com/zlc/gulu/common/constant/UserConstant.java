@@ -15,7 +15,8 @@ public class UserConstant {
         USER_REGISTER_SECRET_NOT_SAME(102, "前后密码不一致"),
         USER_LOGIN_NAME_WRONG(103, "用户名错误"),
         USER_LOGIN_USER_IS_NULL(103, "该用户不存在！请前往注册！"),
-        USER_LOGIN_SECRET_WRONG(103, "密码错误");
+        USER_LOGIN_SECRET_WRONG(103, "密码错误"),
+        USER_EXIT_FAIL(104,"用户登录失败");
 
         private int code;
         private String msg;

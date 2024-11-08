@@ -42,7 +42,7 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, VideoEntity> impl
     public List<VideoEntity> getRandomViews() {
         List<VideoEntity> res = videoMapper.selectList(
                 new LambdaQueryWrapper<VideoEntity>()
-                        .between(VideoEntity::getVideoId, 1, 7)
+                        .between(VideoEntity::getVideoId, 1, 11)
         );
         return res;
     }

@@ -16,4 +16,6 @@ public interface UserService extends IService<UserEntity> {
     Result register(UserRegisterVo userRegisterVo);
 
     Result login(UserLoginVo userLoginVo);
+
+    Result exit(String token);
 }

@@ -126,7 +126,7 @@ public class GuluUtils {
     }
 
     /*
-     *  删除文件/目录及其子目录
+     *  迭代删除文件/目录
      * */
     public static boolean deleteDir(String dir) {
         File file = new File(dir);

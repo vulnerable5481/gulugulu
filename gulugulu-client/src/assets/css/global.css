@@ -11,12 +11,13 @@
   --Bl1: #16a9da;
   /* 常态蓝2 */
   --Bl2: #00aeec;
-  /* hover之后变的淡蓝 */
   --Bl3: #26baef;
+  --Bl4: #1296db;
   --PK1: #fb7299;
   --PK-Hover1: #fc8bab;
   --GR1: #e3e5e7;
-  --GR2: #F1F2F3;
+  --GR2: #f1f2f3;
+  --GR3: #999999;
   /* 轮播图图片颜色 */
   --Carimg1: #011469;
   --Carimg2: blue;

@@ -24,51 +24,49 @@
       </div>
     </div>
     <!--  随机推荐,用v-for渲染-->
-    <div class="feed_card" v-for="(video, index) in randomVideos" :key="index">
-      <transition name="skeleton">
-        <div class="video-card">
-          <!-- 骨架屏 -->
-          <div class="video-card_skeleton" :class="loadingRandom ? 'loading_animation' : 'hide'">
-            <div class="video-card_skeleton-cover"></div>
-            <div class="video-card_skeleton-info">
-              <p class="video-card__skeleton--text"></p>
-              <p class="video-card__skeleton--text short"></p>
-              <p class="video-card__skeleton--text light"></p>
-            </div>
+    <div class="feed_card" v-for="index in 11" :key="index">
+      <div class="video-card">
+        <!-- 骨架屏 -->
+        <div class="video-card_skeleton" v-if="loadingRandom">
+          <div class="video-card_skeleton-cover"></div>
+          <div class="video-card_skeleton-info">
+            <p class="video-card__skeleton--text"></p>
+            <p class="video-card__skeleton--text short"></p>
+            <p class="video-card__skeleton--text light"></p>
           </div>
-          <!-- 实体内容 -->
-          <div class="video-card__wrap" v-if="!loadingRandom">
-            <div class="video-card_item">
-              <!-- 视频主体 -->
-              <div class="video-body">
-                <picture class="video-card_thumbnail">
-                  <video
-                    class="video-cover"
-                    ref="videoRefs"
-                    preload="metadata"
-                    @mouseenter="playVideo(index)"
-                    @mouseleave="pauseVideo(index)"
-                  >
-                    <source :src="video.url" type="video/mp4" />
-                  </video>
-                </picture>
-                <div class="video-card_views"></div>
-                <div class="video-card_comments"></div>
-                <div class="duration"></div>
-              </div>
-              <!-- 视频底部 -->
-              <div class="video-card_footer">
-                <div class="video-card_title">谭咏麟《爱情陷阱》86万众狂欢演唱会1984年Live全程记录</div>
-                <div class="video-info">
-                  <div :class="'isfollowed' ? 'followed' : 'not-followed'">已关注</div>
-                  <div class="video-card_author video-card-font">迷路的森林狼</div>
-                  <div class="video-card_date video-card-font">·10.29</div>
-                </div>
+        </div>
+        <!-- 实体内容 -->
+        <div class="video-card__wrap" v-if="!loadingRandom">
+          <div class="video-card_item">
+            <!-- 视频主体 -->
+            <div class="video-body">
+              <picture class="video-card_thumbnail">
+                <video
+                  class="video-cover"
+                  ref="videoRefs"
+                  preload="metadata"
+                  @mouseenter="playVideo(index)"
+                  @mouseleave="pauseVideo(index)"
+                >
+                  <source :src="randomVideos[index - 1].url" type="video/mp4" />
+                </video>
+              </picture>
+              <div class="video-card_views"></div>
+              <div class="video-card_comments"></div>
+              <div class="duration"></div>
+            </div>
+            <!-- 视频底部 -->
+            <div class="video-card_footer">
+              <div class="video-card_title">谭咏麟《爱情陷阱》86万众狂欢演唱会1984年Live全程记录</div>
+              <div class="video-info">
+                <div :class="'isfollowed' ? 'followed' : 'not-followed'">已关注</div>
+                <div class="video-card_author video-card-font">迷路的森林狼</div>
+                <div class="video-card_date video-card-font">·10.29</div>
               </div>
             </div>
           </div>
         </div>
-      </transition>
+      </div>
     </div>
   </div>
 </template>
@@ -78,11 +76,16 @@ import { getRandomViews } from '@/apis/uploadApi/uploadRequest';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 // 是否正在加载
-let loadingRandom = ref(false);
+let loadingRandom = ref(true);
 // 随机视频
 let randomVideos = reactive([]);
 // 视频引用数组
 let videoRefs = ref([]);
+// 正在播放的视频
+let currentPlayingVideo;
+// 防抖计时器
+let inTimer;
+let outTimer;
 
 // 图片集合
 let imgs = reactive([]);
@@ -122,29 +125,47 @@ function initCarousel() {
 
 // 初始化随机视频
 async function initRandomViews() {
-  const { data } = await getRandomViews();
-  // randomVideos = data;
-  randomVideos.push(...data); // 添加新数据
+  const response = await getRandomViews();
+  if (response) {
+    const { data } = response; // 确保 response 不是 null
+    randomVideos.push(...data);
+    loadingRandom.value = false;
+  } else {
+    console.log('获取随机视频返回为空');
+  }
 }
 
 // 播放视频;
 function playVideo(index) {
-  const videoElement = videoRefs.value[index];
-  if (videoElement) {
-    videoElement.muted = true; // 关闭声音
-    videoElement.src = randomVideos[index].url; // 确保使用对应的视频 URL
-    videoElement.load(); // 强制加载新视频
-    console.log(videoElement.src);
-    videoElement.play();
+  // 如果有正在播放的视频就重置播放
+  if (currentPlayingVideo) {
+    currentPlayingVideo = index;
+  } else {
+    pauseVideo(currentPlayingVideo);
   }
+  clearTimeout(outTimer); //防抖
+  inTimer = setTimeout(() => {
+    index = index - 1;
+    const videoElement = videoRefs.value[index];
+    if (videoElement) {
+      videoElement.muted = true; // 关闭声音
+      videoElement.src = randomVideos[index].url; // 确保使用对应的视频 URL
+      videoElement.load(); // 强制加载新视频
+      videoElement.play();
+    }
+  }, 200);
 }
 // 停止视频;
 function pauseVideo(index) {
-  const videoElement = videoRefs.value[index];
-  if (videoElement) {
-    videoElement.pause();
-    videoElement.currentTime = 0; // 重置进度
-  }
+  clearTimeout(inTimer); //防抖
+  outTimer = setTimeout(() => {
+    index = index - 1;
+    const videoElement = videoRefs.value[index];
+    if (videoElement) {
+      videoElement.pause();
+      videoElement.currentTime = 0; // 重置进度
+    }
+  }, 200);
 }
 
 onMounted(async () => {

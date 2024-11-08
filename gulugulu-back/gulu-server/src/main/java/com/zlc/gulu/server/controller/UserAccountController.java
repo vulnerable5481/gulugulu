@@ -35,4 +35,12 @@ public class UserAccountController {
     public Result register(@RequestBody UserRegisterVo userRegisterVo) {
         return userService.register(userRegisterVo);
     }
+
+    /*
+    *  退出登录
+    * */
+    @PostMapping("/exit")
+    public Result exit(String token){
+        return userService.exit(token);
+    }
 }

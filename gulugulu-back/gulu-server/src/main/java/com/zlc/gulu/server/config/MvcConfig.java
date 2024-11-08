@@ -26,7 +26,8 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtInterceptor)
                 .excludePathPatterns(
                         "/user/login",
-                        "/user/register"
+                        "/user/register",
+                        "/video/randomViews"  // 未登录也允许获取视频
                 );
     }
 

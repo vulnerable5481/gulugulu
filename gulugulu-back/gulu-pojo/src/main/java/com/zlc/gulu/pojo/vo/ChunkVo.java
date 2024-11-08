@@ -13,4 +13,6 @@ public class ChunkVo {
     private String hash;
     //总分片数
     private Integer total;
+    //sessionId
+    private String sessionId;
 }

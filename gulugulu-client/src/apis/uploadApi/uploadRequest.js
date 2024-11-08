@@ -23,11 +23,11 @@ export function mergeFile(mergeVo) {
 // 获取随机视频
 export function getRandomViews() {
   return httpRequest
-  .get("/video/randomViews")
-  .then(response => {
-    return response.data
-  })
-  .catch(error => {
-    console.log("获取随机视频失败")
-  })
+    .get('/video/randomViews')
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      console.log('获取随机视频失败:', error);
+    });
 }

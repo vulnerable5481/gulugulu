@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4709235 */
-  src: url('iconfont.woff2?t=1729695607302') format('woff2'),
-       url('iconfont.woff?t=1729695607302') format('woff'),
-       url('iconfont.ttf?t=1729695607302') format('truetype');
+  src: url('iconfont.woff2?t=1730983329969') format('woff2'),
+       url('iconfont.woff?t=1730983329969') format('woff'),
+       url('iconfont.ttf?t=1730983329969') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,46 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.gulu-zhongxinshangchuan:before {
+  content: "\e621";
+}
+
+.gulu-zanting:before {
+  content: "\e613";
+}
+
+.gulu-kaishi:before {
+  content: "\e788";
+}
+
+.gulu-erciyuanb:before {
+  content: "\e64f";
+}
+
+.gulu-icon_huabanfuben:before {
+  content: "\e762";
+}
+
+.gulu-TsurugiHina:before {
+  content: "\e603";
+}
+
+.gulu-erciyuan:before {
+  content: "\e605";
+}
+
+.gulu-TsurugiHina1:before {
+  content: "\e60d";
+}
+
+.gulu-leimujianying:before {
+  content: "\e60e";
+}
+
+.gulu-TsurugiHina2:before {
+  content: "\e60f";
 }
 
 .gulu-xiaoxi:before {
