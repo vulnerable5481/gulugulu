@@ -119,7 +119,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
                 new LambdaQueryWrapper<UserEntity>()
                         .eq(UserEntity::getUserName, name)
         );
-        if (GuluUtils.isEmpty(userEntity.getUserId()) && GuluUtils.isEmpty(userEntity)) {
+        if (GuluUtils.isEmpty(userEntity) || GuluUtils.isEmpty(userEntity.getUserId())) {
             return Result.error(UserConstant.UserLoginEnum.USER_LOGIN_USER_IS_NULL.getCode(),
                     UserConstant.UserLoginEnum.USER_LOGIN_USER_IS_NULL.getMsg());
         }

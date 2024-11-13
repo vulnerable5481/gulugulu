@@ -43,10 +43,11 @@ export async function handleLogin(user) {
     return;
   }
   //2.登录
-  const { data, code } = await login(user);
+  const { data, code, msg } = await login(user);
   //2.1)登录失败
   if (code != 200) {
-    ElMessage.error('咕噜咕噜被玩坏了 o(╥﹏╥)o 这绝对不是咕噜的错~~~~');
+    const err = msg ? msg : '咕噜咕噜被玩坏了 o(╥﹏╥)o 这绝对不是咕噜的错~~~~';
+    ElMessage.error(err);
     return;
   } else {
     ElMessage.success(`欢迎${data.userName}回来!`);

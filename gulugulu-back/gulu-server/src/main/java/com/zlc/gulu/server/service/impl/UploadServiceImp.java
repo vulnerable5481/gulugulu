@@ -1,14 +1,10 @@
 package com.zlc.gulu.server.service.impl;
 
 import com.zlc.gulu.common.constant.ErrorConstant;
-import com.zlc.gulu.common.constant.VideoConstant;
 import com.zlc.gulu.common.exception.ChunkMergeException;
 import com.zlc.gulu.common.result.Result;
 import com.zlc.gulu.common.utils.GuluUtils;
-import com.zlc.gulu.common.utils.UserHolder;
-import com.zlc.gulu.pojo.entity.VideoEntity;
 import com.zlc.gulu.pojo.vo.ChunkVo;
-import com.zlc.gulu.server.mapper.VideoMapper;
 import com.zlc.gulu.server.service.UploadService;
 import com.zlc.gulu.server.service.VideoService;
 import com.zlc.gulu.server.utils.OssUtils;
@@ -25,7 +21,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -111,14 +106,6 @@ public class UploadServiceImp implements UploadService {
             return Result.error(ErrorConstant.ErrorEnum.UPLOADS_FAIL_MERGEFILE.getCode(),
                     ErrorConstant.ErrorEnum.UPLOADS_FAIL_MERGEFILE.getMsg());
         }
-
-        // 保存到数据库
-        VideoEntity videoEntity = new VideoEntity();
-        videoEntity.setUserId(UserHolder.getUser().getUserId());
-        videoEntity.setHashValue(hash);
-        videoEntity.setUrl(url);
-        videoEntity.setStatus(VideoConstant.VIDEO_STATUS_REVIEW);
-        videoService.save(videoEntity);
 
         // 返回结果
         return Result.success(url);

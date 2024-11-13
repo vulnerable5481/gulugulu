@@ -12,7 +12,7 @@ import lombok.Data;
  * 
  * @TableName user
  */
-@TableName(value ="user")
+@TableName(value ="gl_user")
 @Data
 public class UserEntity implements Serializable {
     /**

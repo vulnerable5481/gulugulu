@@ -22,16 +22,4 @@ public class UploadController {
     public Result upload(@ModelAttribute("formData") ChunkVo chunkVo) {
         return uploadService.uploadChunk(chunkVo);
     }
-
-    /*
-     *  合并文件
-     * */
-    @PostMapping("/merge")
-    public Result merge(@RequestBody MergeVo mergeVo) {
-        if (uploadService.mergeChunk(mergeVo.getHash(), mergeVo.getTotal())) {
-            return Result.success();
-        } else {
-            return Result.error("合并文件失败");
-        }
-    }
 }

@@ -1,12 +1,14 @@
-import httpRequest from "@/network/httRequest.js";
+import httpRequest from '@/network/httRequest.js';
 
 // 用户登录
 export function login(user) {
   return httpRequest
-    .post("/user/login", user)
-    .then((response) => response.data)
+    .post('/user/login', user)
+    .then((response) => {
+      return response.data;
+    })
     .catch((error) => {
-      console.log("用户登录失败~~~");
+      console.log('用户登录失败~~~');
       throw error;
     });
 }
@@ -14,10 +16,10 @@ export function login(user) {
 //用户注册
 export function register(userVO) {
   return httpRequest
-    .post("/user/register", userVO)
+    .post('/user/register', userVO)
     .then((response) => response)
     .catch((err) => {
-      console.log("用户注册失败~~~");
+      console.log('用户注册失败~~~');
       throw err;
     });
 }

@@ -48,7 +48,7 @@
                   @mouseenter="playVideo(index)"
                   @mouseleave="pauseVideo(index)"
                 >
-                  <source :src="randomVideos[index - 1].url" type="video/mp4" />
+                  <source :src="randomVideos[index - 1]?.url" type="video/mp4" />
                 </video>
               </picture>
               <div class="video-card_views"></div>
@@ -128,9 +128,14 @@ async function initRandomViews() {
   const response = await getRandomViews();
   if (response) {
     const { data } = response; // 确保 response 不是 null
+    if (data.length <= 11) {
+      // 如果服务器没有返回足够的视频数量，则不渲染前端页面，防止报Null错误
+      return;
+    }
     randomVideos.push(...data);
     loadingRandom.value = false;
   } else {
+    loadingRandom.value = true;
     console.log('获取随机视频返回为空');
   }
 }
@@ -165,11 +170,12 @@ function pauseVideo(index) {
       videoElement.pause();
       videoElement.currentTime = 0; // 重置进度
     }
-  }, 200);
+  }, 200); // 延迟500ms以上关闭视频,可防止那个讨人厌的报错
 }
 
 onMounted(async () => {
   initCarousel();
+  // 等待初始化视频
   await initRandomViews();
 });
 </script>

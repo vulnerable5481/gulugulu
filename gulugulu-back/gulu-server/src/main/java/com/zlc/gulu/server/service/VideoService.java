@@ -12,7 +12,5 @@ import java.util.List;
 */
 public interface VideoService extends IService<VideoEntity> {
 
-    boolean isVideoExists(String hash);
-
     List<VideoEntity> getRandomViews();
 }

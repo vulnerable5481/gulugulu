@@ -10,10 +10,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 
- * @TableName video
+ * 投稿视频表
+ * @TableName gl_video
  */
-@TableName(value ="video")
+@TableName(value ="gl_video")
 @Data
 public class VideoEntity implements Serializable {
     /**
@@ -23,19 +23,44 @@ public class VideoEntity implements Serializable {
     private Integer videoId;
 
     /**
-     * 视频作者
+     * 投稿用户ID
      */
     private Integer userId;
 
     /**
-     * 视频hash标识符
+     * 视频标题(不能超过40字)
      */
-    private String hashValue;
+    private String title;
 
     /**
-     * url地址
+     * 视频总时长(单位:s)
      */
-    private String url;
+    private Integer duration;
+
+    /**
+     * 视频封面url
+     */
+    private String coverUrl;
+
+    /**
+     * 视频url
+     */
+    private String videoUrl;
+
+    /**
+     * 视频类型(0:自制,1:转载)
+     */
+    private Integer type;
+
+    /**
+     * 视频标签
+     */
+    private String tags;
+
+    /**
+     * 简介(不能超过2000字)
+     */
+    private String description;
 
     /**
      * 视频状态(0:正常，1：禁用，2：审核中)

@@ -6,7 +6,7 @@ export function uploadVideo(formData) {
     .postForm('/upload/chunk', formData)
     .then((response) => response.data)
     .catch((error) => {
-      console.log('上传视频失败~~~');
+      throw error;
     });
 }
 
@@ -16,7 +16,7 @@ export function mergeFile(mergeVo) {
     .post('/upload/merge', mergeVo)
     .then((response) => response)
     .catch((error) => {
-      console.log('文件合并失败');
+      throw error;
     });
 }
 
