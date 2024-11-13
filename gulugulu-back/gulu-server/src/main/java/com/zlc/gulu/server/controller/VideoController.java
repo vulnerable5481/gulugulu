@@ -2,6 +2,7 @@ package com.zlc.gulu.server.controller;
 
 import com.zlc.gulu.common.result.Result;
 import com.zlc.gulu.pojo.entity.VideoEntity;
+import com.zlc.gulu.pojo.vo.VideoUploadVo;
 import com.zlc.gulu.server.service.VideoService;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +30,8 @@ public class VideoController {
      *  上传投稿视频
      * */
     @PostMapping("/save")
-    public Result saveVideo(){
+    public Result saveVideo(@RequestBody VideoUploadVo videoUploadVo) {
+        videoService.saveVideo(videoUploadVo);
         return Result.success();
     }
 }

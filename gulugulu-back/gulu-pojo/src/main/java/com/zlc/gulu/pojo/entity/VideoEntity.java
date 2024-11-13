@@ -57,6 +57,16 @@ public class VideoEntity implements Serializable {
      */
     private String tags;
 
+    /*
+    *  主分区-ID
+    * */
+    private Integer mpId;
+
+    /*
+    *  次分区ID
+    * */
+    private Integer spId;
+
     /**
      * 简介(不能超过2000字)
      */

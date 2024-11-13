@@ -10,6 +10,18 @@ export function uploadVideo(formData) {
     });
 }
 
+// 上传图片
+export function uploadImg(img) {
+  return httpRequest
+    .postForm ('/upload/img', img)
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
+
 // 合并文件
 export function mergeFile(mergeVo) {
   return httpRequest

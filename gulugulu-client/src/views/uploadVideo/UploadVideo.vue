@@ -120,10 +120,10 @@
                   <video ref="videoRef" :src="videoURL" style="display: none"></video>
                   <canvas ref="canvasRef" style="display: none"></canvas>
                   <!-- <img :src="cover" alt="咕噜~~~" /> -->
-                  <img :src="videoSubmission.coverUrl" alt="咕噜~~~" />
+                  <img :src="cover" alt="咕噜~~~" />
                 </div>
                 <div class="cover-right">
-                  <button class="cover-right-btn" @click="cropedVisible = true;">更换封面</button>
+                  <button class="cover-right-btn" @click="cropedVisible = true">更换封面</button>
                   <span class="cover-right-txt">系统默认选中第一帧为视频封面</span>
                   <span class="cover-right-txt">*默认情况下您的封面将以16:9比例展示</span>
                 </div>
@@ -226,7 +226,7 @@
               </div>
             </div>
             <div class="sub-btn-container">
-              <button class="sub-btn">立即投稿</button>
+              <button class="sub-btn" @click="handleuploadVideo">立即投稿</button>
             </div>
           </div>
         </div>
@@ -246,13 +246,15 @@ import { useUserStore } from '@/store';
 import { ElMessage } from 'element-plus';
 import { getCatagoryTree } from '@/apis/catagoryApi/catagoryRequest';
 import Crop from '@/components/crop/Crop.vue';
+import { uploadImg } from '@/apis/uploadApi/uploadRequest';
+import { saveVideo } from '@/apis/videoApi/videoRequest';
 
 // pinia
 const store = useUserStore();
 // 是否展示编辑投稿视频
-let editedVisible = ref(true);
+let editedVisible = ref(false);
 // 是否展示裁剪投稿封面
-let cropedVisible = ref(true);
+let cropedVisible = ref(false);
 // 文件input DOM
 const fileInput = ref();
 // video DOM
@@ -282,6 +284,9 @@ let videoURL = ref('');
 let frames = reactive([]);
 // sessionId
 let sessionId = ref('');
+// 默认视频第一帧为封面
+let cover = ref(''); // 初始封面url
+let coverBlob = ref(''); // 初始封面的二进制文件流
 // 用户头像
 const userAvatar = computed(() => {
   return store.userInfo.avatar;
@@ -445,7 +450,7 @@ function addTags(tag) {
 
 // 关闭裁剪区域
 function closeCrop() {
-  console.log('关闭')
+  console.log('关闭');
   cropedVisible.value = false;
 }
 
@@ -462,6 +467,8 @@ function initCover(file) {
 
   // 等待视频元数据加载完成
   video.addEventListener('loadedmetadata', () => {
+    // 获取时长
+    videoSubmission.duration = Math.round(video.duration); // 四舍五入
     // 图片大小等同于视频大小
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -476,9 +483,9 @@ function initCover(file) {
     // 生成 视频帧图片url
     url = canvas.toDataURL('image/jpeg');
     // 切割图片，完成图片适配操作
-    const newUrl = await cropCover(url);
+    const blob = await cropCover(url);
     // 返回裁剪后的帧图片作为封面
-    videoSubmission.coverUrl = newUrl;
+    coverBlob.value = blob;
   });
 }
 
@@ -514,10 +521,30 @@ function cropCover(url) {
       const offsetY = (srcHeight - targetHeight) / 2;
       // 绘制新图片
       ctx.drawImage(img, offsetX, offsetY, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight);
-      // 返回新图片的url
-      const newUrl = canvas.toDataURL('image/jpg');
-      resolve(newUrl);
+      // 返回新图片给页面
+      cover.value = canvas.toDataURL('image/jpg');
+      // 创建图片二进制文件
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(new File([blob], 'temp', { type: 'image/jpeg' }));
+        } else {
+          reject(new Error('Blob 创建失败'));
+        }
+      }, 'image/jpeg');
     };
+  });
+}
+
+// 上传投稿
+function handleuploadVideo() {
+  let formData = new FormData();
+  formData.append('cover', coverBlob.value, videoSubmission.title + '.jpg');
+  // 上传封面
+  uploadImg(formData).then(({ data }) => {
+    // 等待封面上传成功，上传稿件
+    videoSubmission.coverUrl = data;
+    // 上传稿件
+    saveVideo(videoSubmission);
   });
 }
 
@@ -542,7 +569,7 @@ async function handleUpload() {
   //保存文件信息
   fileTransfer.fileSize = fileSizeInMB;
   videoSubmission.title = title;
-  videoSubmission.duration = file.duration;
+  // videoSubmission.duration = file.duration; // 无法直接获取时间,可以从初始化封面获取时长
   const totalChunks = Math.ceil(file.size / chunkSize);
 
   // 切换内嵌页
@@ -566,7 +593,11 @@ async function handleUpload() {
         formData.append('hash', hash);
         formData.append('total', totalChunks);
         formData.append('sessionId', sessionId.value);
-        uploadVideoChunk(formData);
+        uploadVideoChunk(formData).then(({ data }) => {
+          if (data) {
+            videoSubmission.videoUrl = data;
+          }
+        });
         // 【我本来打算根据服务器返回的url，来创建视频帧封面，实际上我可以直接用前端上传的file生成临时url来直接在前端就创作封面！！！】
         // .then(({ data }) => {
         //   if (i == totalChunks - 1) {

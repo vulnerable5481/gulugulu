@@ -1,6 +1,7 @@
 package com.zlc.gulu.server.utils;
 
 import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.event.ProgressEvent;
 import com.aliyun.oss.event.ProgressEventType;
 import com.aliyun.oss.event.ProgressListener;
@@ -12,21 +13,19 @@ import com.zlc.gulu.server.handler.ProcessWsHandle;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -318,4 +317,33 @@ public class OssUtils {
         }
     }
 
+    /*
+     *  上传图片
+     * */
+    public String uploadImg(MultipartFile img) {
+        if (img.isEmpty()) {
+            return "";
+        }
+        OSS ossClient = applicationContext.getBean(OSS.class);
+        try (InputStream inputStream = img.getInputStream()) {
+            // 创建ObjectName
+            String fileName = img.getOriginalFilename(); // 获取图片名称
+            int index = fileName.lastIndexOf(".");
+            String prefix = fileName.substring(0, index); // 提取文件名字
+            String fileExtension = fileName.substring(index); // 提取文件扩展名
+            String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String suffix = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")); //不固定图片后缀名,防止重复
+            String objectName = "cover/" + time + "/" + prefix + "_" + suffix + fileExtension;
+            // 创建PutObjectRequest对象。
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, inputStream);
+            // 创建PutObject请求。
+            PutObjectResult result = ossClient.putObject(putObjectRequest);
+            // 返回结果
+            String url = bucketUrl + objectName;
+            return url;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
 }

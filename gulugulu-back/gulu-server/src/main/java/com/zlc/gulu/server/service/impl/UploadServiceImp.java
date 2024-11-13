@@ -1,6 +1,7 @@
 package com.zlc.gulu.server.service.impl;
 
 import com.zlc.gulu.common.constant.ErrorConstant;
+import com.zlc.gulu.common.constant.VideoConstant;
 import com.zlc.gulu.common.exception.ChunkMergeException;
 import com.zlc.gulu.common.result.Result;
 import com.zlc.gulu.common.utils.GuluUtils;
@@ -173,6 +174,18 @@ public class UploadServiceImp implements UploadService {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public Result uploadCover(MultipartFile cover) {
+        String url = ossUtils.uploadImg(cover);
+        if (GuluUtils.isEmpty(url)) {
+            return Result.error(VideoConstant.VideoEnum.VIDEO_UPLOAD_COVER_FAIL.getCode()
+                    , VideoConstant.VideoEnum.VIDEO_UPLOAD_COVER_FAIL.getMsg());
+        } else {
+            return Result.success(url);
+        }
+
     }
 
 
