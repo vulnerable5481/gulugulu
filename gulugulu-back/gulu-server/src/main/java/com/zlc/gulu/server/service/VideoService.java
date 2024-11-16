@@ -1,6 +1,7 @@
 package com.zlc.gulu.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zlc.gulu.common.result.Result;
 import com.zlc.gulu.pojo.entity.VideoEntity;
 import com.zlc.gulu.pojo.vo.VideoUploadVo;
 
@@ -16,4 +17,6 @@ public interface VideoService extends IService<VideoEntity> {
     List<VideoEntity> getRandomViews();
 
     void saveVideo(VideoUploadVo videoUploadVo);
+
+    Result queryVideoById(Integer videoId);
 }

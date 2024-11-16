@@ -6,7 +6,10 @@ public class VideoConstant {
     public static final int VIDEO_STATUS_REVIEW = 2; // 视频审核中
 
     public enum VideoEnum {
-        VIDEO_UPLOAD_COVER_FAIL(404, "上传视频封面失败");
+        /* 懒死我了，直接统一返回404错误码得了 */
+        VIDEO_UPLOAD_COVER_FAIL(404, "上传视频封面失败"),
+        VIDEO_QUERY_NULL(404, "视频已不存在"),
+        VIDEO_QUERY_DISABLED(404, "视频涉嫌违规，已被下架!");
 
         VideoEnum(int code, String msg) {
             this.code = code;

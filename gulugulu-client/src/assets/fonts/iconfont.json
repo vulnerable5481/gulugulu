@@ -6,6 +6,125 @@
   "description": "个人视频网站项目",
   "glyphs": [
     {
+      "icon_id": "593482",
+      "name": "全屏",
+      "font_class": "weibiaoti10",
+      "unicode": "e61c",
+      "unicode_decimal": 58908
+    },
+    {
+      "icon_id": "4485676",
+      "name": "设置",
+      "font_class": "shezhi",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
+      "icon_id": "6776386",
+      "name": "声音_实体",
+      "font_class": "shengyin_shiti",
+      "unicode": "eca5",
+      "unicode_decimal": 60581
+    },
+    {
+      "icon_id": "23081501",
+      "name": "全屏",
+      "font_class": "quanping",
+      "unicode": "e671",
+      "unicode_decimal": 58993
+    },
+    {
+      "icon_id": "26082642",
+      "name": "画中画",
+      "font_class": "huazhonghua",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
+      "icon_id": "573575",
+      "name": "暂停",
+      "font_class": "zanting1",
+      "unicode": "e638",
+      "unicode_decimal": 58936
+    },
+    {
+      "icon_id": "11752005",
+      "name": "播放",
+      "font_class": "bofang1",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
+      "icon_id": "17654824",
+      "name": "暂停",
+      "font_class": "zanting2",
+      "unicode": "e637",
+      "unicode_decimal": 58935
+    },
+    {
+      "icon_id": "5485630",
+      "name": "禁止",
+      "font_class": "jinzhi",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "1447742",
+      "name": "弹幕列表",
+      "font_class": "danmuliebiao",
+      "unicode": "e61b",
+      "unicode_decimal": 58907
+    },
+    {
+      "icon_id": "2128213",
+      "name": "弹幕",
+      "font_class": "danmu",
+      "unicode": "e610",
+      "unicode_decimal": 58896
+    },
+    {
+      "icon_id": "2418255",
+      "name": "收藏",
+      "font_class": "shoucang1",
+      "unicode": "e670",
+      "unicode_decimal": 58992
+    },
+    {
+      "icon_id": "2674474",
+      "name": "播放",
+      "font_class": "bofang",
+      "unicode": "e624",
+      "unicode_decimal": 58916
+    },
+    {
+      "icon_id": "27301240",
+      "name": "弹幕",
+      "font_class": "danmu1",
+      "unicode": "e63c",
+      "unicode_decimal": 58940
+    },
+    {
+      "icon_id": "28285265",
+      "name": "三个点点",
+      "font_class": "sangediandian",
+      "unicode": "e7a2",
+      "unicode_decimal": 59298
+    },
+    {
+      "icon_id": "38321176",
+      "name": "笔记本-copy",
+      "font_class": "bijiben",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "41956681",
+      "name": "投币@2x-copy",
+      "font_class": "toubi-light",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
       "icon_id": "4948994",
       "name": "重新上传",
       "font_class": "zhongxinshangchuan",

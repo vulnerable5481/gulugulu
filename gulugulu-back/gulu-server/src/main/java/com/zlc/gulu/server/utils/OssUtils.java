@@ -116,7 +116,7 @@ public class OssUtils {
     }
 
     /*
-     *  分片上传 【2.5~3mb/s】 //进度条没有处理完,被遗弃了
+     *  分片上传  【进度条没有处理完,暂未启用】
      * */
     public String mergeChunkToAliOss(ChunkVo chunkVo) {
         Integer total = chunkVo.getTotal();
@@ -230,7 +230,7 @@ public class OssUtils {
     }
 
     /*
-     *  分片并发上传  【速度：2.5~3mb/s】
+     *  分片并发上传
      * */
     public String mergeChunkToAliOssPlus(String hash, int total) {
         // 确保使用新阿里云连接

@@ -34,4 +34,12 @@ public class VideoController {
         videoService.saveVideo(videoUploadVo);
         return Result.success();
     }
+
+    /*
+     *  获取单个视频详情
+     * */
+    @GetMapping("/queryVideo")
+    public Result queryVideo(@RequestParam("videoId") Integer videoId){
+        return videoService.queryVideoById(videoId);
+    }
 }

@@ -5,10 +5,7 @@ import com.zlc.gulu.pojo.vo.UserLoginVo;
 import com.zlc.gulu.pojo.vo.UserRegisterVo;
 import com.zlc.gulu.server.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -37,10 +34,10 @@ public class UserAccountController {
     }
 
     /*
-    *  退出登录
-    * */
+     *  退出登录
+     * */
     @PostMapping("/exit")
-    public Result exit(String token){
+    public Result exit(@RequestParam("token") String token) {
         return userService.exit(token);
     }
 }

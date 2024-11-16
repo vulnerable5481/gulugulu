@@ -41,14 +41,17 @@
             <!-- 视频主体 -->
             <div class="video-body">
               <picture class="video-card_thumbnail">
+                <img class="video-cover" :src="randomVideos[index - 1].coverUrl" alt="" />
                 <video
-                  class="video-cover"
+                  :poster="randomVideos[index - 1]?.coverUrl"
+                  class="video-item"
                   ref="videoRefs"
                   preload="metadata"
+                  @click="broadcastVideo(randomVideos[index - 1].videoId)"
                   @mouseenter="playVideo(index)"
                   @mouseleave="pauseVideo(index)"
                 >
-                  <source :src="randomVideos[index - 1]?.url" type="video/mp4" />
+                  <source :src="randomVideos[index - 1]?.videoUrl" type="video/mp4" />
                 </video>
               </picture>
               <div class="video-card_views"></div>
@@ -57,7 +60,7 @@
             </div>
             <!-- 视频底部 -->
             <div class="video-card_footer">
-              <div class="video-card_title">谭咏麟《爱情陷阱》86万众狂欢演唱会1984年Live全程记录</div>
+              <div class="video-card_title">{{ randomVideos[index - 1]?.title }}</div>
               <div class="video-info">
                 <div :class="'isfollowed' ? 'followed' : 'not-followed'">已关注</div>
                 <div class="video-card_author video-card-font">迷路的森林狼</div>
@@ -73,8 +76,11 @@
 
 <script setup>
 import { getRandomViews } from '@/apis/uploadApi/uploadRequest';
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { onBeforeRouteLeave, useRouter } from 'vue-router';
 
+// 路由
+const router = useRouter();
 // 是否正在加载
 let loadingRandom = ref(true);
 // 随机视频
@@ -128,8 +134,9 @@ async function initRandomViews() {
   const response = await getRandomViews();
   if (response) {
     const { data } = response; // 确保 response 不是 null
-    if (data.length <= 11) {
+    if (data.length < 11) {
       // 如果服务器没有返回足够的视频数量，则不渲染前端页面，防止报Null错误
+      console.log('数据库视频太少了！');
       return;
     }
     randomVideos.push(...data);
@@ -140,10 +147,10 @@ async function initRandomViews() {
   }
 }
 
-// 播放视频;
+// 预览视频;
 function playVideo(index) {
   // 如果有正在播放的视频就重置播放
-  if (currentPlayingVideo) {
+  if (!currentPlayingVideo) {
     currentPlayingVideo = index;
   } else {
     pauseVideo(currentPlayingVideo);
@@ -153,30 +160,60 @@ function playVideo(index) {
     index = index - 1;
     const videoElement = videoRefs.value[index];
     if (videoElement) {
+      videoElement.style.zIndex = 1000;
       videoElement.muted = true; // 关闭声音
-      videoElement.src = randomVideos[index].url; // 确保使用对应的视频 URL
-      videoElement.load(); // 强制加载新视频
+      videoElement.src = randomVideos[index].videoUrl; // 确保使用对应的视频 URL
       videoElement.play();
     }
-  }, 200);
+  }, 300);
 }
-// 停止视频;
+// 停止预览视频;
 function pauseVideo(index) {
   clearTimeout(inTimer); //防抖
   outTimer = setTimeout(() => {
     index = index - 1;
     const videoElement = videoRefs.value[index];
     if (videoElement) {
+      videoElement.style.zIndex = 10;
       videoElement.pause();
       videoElement.currentTime = 0; // 重置进度
     }
   }, 200); // 延迟500ms以上关闭视频,可防止那个讨人厌的报错
 }
 
+// 跳转到视频详情页
+function broadcastVideo(videoId) {
+  router.push({
+    name: 'videoIndex',
+    params: {
+      bvId: videoId, // BV号
+    },
+    query: {
+      videoId: videoId,
+    },
+  });
+}
+
+// 监听浏览器标签页的可见性变化
+function handleVisibilitychange() {
+  // 关闭视频播放
+  if (currentPlayingVideo) {
+    pauseVideo(currentPlayingVideo);
+    currentPlayingVideo = null;
+  }
+}
+
 onMounted(async () => {
   initCarousel();
   // 等待初始化视频
   await initRandomViews();
+  // 监听页面可见性
+  document.addEventListener('visibilitychange', handleVisibilitychange);
+});
+
+onBeforeUnmount(() => {
+  // 清理事件监听
+  document.removeEventListener('visibilitychange', handleVisibilitychange);
 });
 </script>
 
@@ -269,9 +306,20 @@ onMounted(async () => {
 }
 
 .video-cover {
+  position: absolute;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* 禁用封面图的鼠标事件 */
+}
+
+.video-item {
+  position: absolute;
+  z-index: 10;
   width: 100%;
   height: 100%;
   border-radius: 9px;
+  cursor: pointer;
 }
 
 .video-card_footer {
@@ -285,6 +333,7 @@ onMounted(async () => {
 }
 
 .video-card_title {
+  width: 100%;
   padding-right: 40px;
   display: -webkit-box;
   -webkit-box-orient: vertical; /* 设置为垂直盒子布局 */

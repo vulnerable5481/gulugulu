@@ -248,9 +248,12 @@ import { getCatagoryTree } from '@/apis/catagoryApi/catagoryRequest';
 import Crop from '@/components/crop/Crop.vue';
 import { uploadImg } from '@/apis/uploadApi/uploadRequest';
 import { saveVideo } from '@/apis/videoApi/videoRequest';
+import { useRouter } from 'vue-router';
 
 // pinia
 const store = useUserStore();
+// 路由
+const router = useRouter();
 // 是否展示编辑投稿视频
 let editedVisible = ref(false);
 // 是否展示裁剪投稿封面
@@ -472,7 +475,7 @@ function initCover(file) {
     // 图片大小等同于视频大小
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    // 视频跳转到第一秒
+    // 视频跳转到第3秒,默认以第三秒为封面
     video.currentTime = 3;
   });
 
@@ -537,15 +540,28 @@ function cropCover(url) {
 
 // 上传投稿
 function handleuploadVideo() {
-  let formData = new FormData();
-  formData.append('cover', coverBlob.value, videoSubmission.title + '.jpg');
-  // 上传封面
-  uploadImg(formData).then(({ data }) => {
-    // 等待封面上传成功，上传稿件
-    videoSubmission.coverUrl = data;
-    // 上传稿件
-    saveVideo(videoSubmission);
-  });
+  const rate = fileTransfer.trsfRate;
+  if (rate == 100) {
+    let formData = new FormData();
+    formData.append('cover', coverBlob.value, videoSubmission.title + '.jpg');
+    // 上传封面
+    uploadImg(formData).then(({ data }) => {
+      // 等待封面上传成功，上传稿件
+      videoSubmission.coverUrl = data;
+      // 上传稿件
+      saveVideo(videoSubmission).then(({ data }) => {
+        if (data.code == 200) {
+          ElMessage.success('视频投稿成功，请耐心等待审核通过');
+          // 强制重新加载页面
+          window.location.reload();
+          // 确保页面滚动到顶部
+          window.scrollTo(0, 0);
+        }
+      });
+    });
+  } else {
+    ElMessage.warning('请在视频传输完毕后上传视频!');
+  }
 }
 
 // 触发上传事件

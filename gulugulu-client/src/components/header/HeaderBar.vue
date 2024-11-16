@@ -33,7 +33,12 @@
     <!-- 中间 -->
     <div class="center-search-container">
       <!-- 搜索框 -->
-      <el-input class="nav-search-input" v-model="searchInput" placeholder="请输入搜索内容">
+      <el-input
+        class="nav-search-input"
+        v-model="searchInput"
+        :class="isFixedHeaderBar ? 'nav-search-input-active' : ''"
+        placeholder="请输入搜索内容"
+      >
         <template #suffix>
           <div class="nav-search-btn">
             <i class="gulu-sousuo iconfont"></i>
@@ -51,7 +56,37 @@
         <!-- 登录显示头像 -->
         <div class="avatar-box" @mousemove="handleMouseEnter" @mouseleave="handleMouseLeave" v-else>
           <img class="avatar" :src="userInfo.avatar" :alt="`${userInfo.userName}的头像`" :class="{ 'avatar-big': isAvatarBig }" />
-          <div class="avatar-panel" :style="{ display: popoverDisplay }"></div>
+          <div class="avatar-panel" :style="{ display: popoverDisplay }">
+            <div class="panel-proper">
+              <a class="nickname-item" href="#" style="color: var(--PK1)">{{ userInfo.userName }}</a>
+              <div class="vip-container">
+                <a class="vip-item" href="#">
+                  <img :src="vipImg" alt="" />
+                </a>
+              </div>
+              <div class="coins-item" style="color: var(--GR3)">
+                <div>硬币:<span style="color: black; padding: 0 3px">561</span></div>
+                <div>贝壳:<span style="color: black; padding-left: 3px">0</span></div>
+              </div>
+              <div class="counts-item">
+                <div class="single-count-item">
+                  <div class="count-num">328</div>
+                  <div class="count-text">关注</div>
+                </div>
+                <div class="single-count-item">
+                  <div class="count-num">45</div>
+                  <div class="count-text">粉丝</div>
+                </div>
+                <div class="single-count-item">
+                  <div class="count-num">15</div>
+                  <div class="count-text">动态</div>
+                </div>
+              </div>
+              <div class="exit-item">
+                <button class="exit-btn" @click="handleExit">退出登录</button>
+              </div>
+            </div>
+          </div>
         </div>
       </li>
       <li>
@@ -107,10 +142,11 @@
 </template>
 
 <script setup>
+import { userExit } from '@/apis/userApi/userApi';
 import LoginOrRegister from '@/components/loginRegister/LoginOrRegister.vue';
 import { useUserStore } from '@/store/index.js';
 import { storeToRefs } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const props = defineProps({
   isFixedHeaderBar: {
@@ -136,6 +172,20 @@ let outTimer;
 let searchInput = ref('');
 // 用户信息
 const { userInfo } = storeToRefs(userStore);
+// 会员等级图片
+const vipImg = computed(() => {
+  const roleLevel = userInfo.value.roleLevel;
+  if (roleLevel == 2) {
+    // 年度大会员
+    return require('@/assets/img/vip/vip2.png');
+  } else if (roleLevel == 1) {
+    // 大会员
+    return '';
+  } else {
+    // 普通会员
+    return '';
+  }
+});
 
 // 显示登录界面
 function showLogin() {
@@ -147,6 +197,11 @@ function handleClose(done) {
     loginOrRegister.value.init();
     done();
   }
+}
+
+// 退出登录
+function handleExit() {
+  userExit();
 }
 
 // 悬浮头像时，气泡的显隐
@@ -185,6 +240,7 @@ function handleMouseLeave() {
   position: fixed;
   top: 0;
   border-bottom: 1px solid var(--GR1);
+  box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.05);
   background-color: #fff;
 }
 
@@ -246,20 +302,21 @@ function handleMouseLeave() {
   height: 60%;
   width: 90%;
   opacity: 0.9;
+  border-radius: 6px;
+}
+
+.nav-search-input-active {
+  border: 1px solid var(--GR1);
 }
 
 .nav-search-input ::v-deep .el-input__wrapper {
-  background-color: #e4e8e8;
+  background-color: #f2f3f4;
   border-radius: 6px;
   box-shadow: none;
   padding: 1px 30px 1px 11px;
 }
 .nav-search-input ::v-deep .el-input__wrapper:hover {
   background-color: #fff;
-}
-
-.nav-search-input-active ::v-deep .el-input__wrapper {
-  background-color: #0000001a;
 }
 
 .nav-search-btn {
@@ -366,13 +423,90 @@ function handleMouseLeave() {
   left: -130px;
   width: 300px;
   height: 475px;
+  padding: 0 16px;
   background-color: var(--Wt1);
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  color: var(--Wt1);
   z-index: 1; /* 确保它在图片下面 */
 }
 
+.panel-proper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 50px;
+  width: 100%;
+}
+
+.nickname-item {
+  font-size: 20px !important;
+  font-weight: 500;
+}
+
+.vip-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.vip-item {
+  margin: 5px 0;
+  width: 83px;
+  height: 20px;
+}
+.vip-item img {
+  width: 100%;
+  height: 100%;
+}
+
+.coins-item {
+  font-size: 12px;
+  font-family: 'microsoft yahei';
+  display: flex;
+  justify-content: center;
+}
+
+.counts-item {
+  margin-top: 5px;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.single-count-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.count-num {
+  font-size: 18px;
+}
+
+.count-text {
+  font-size: 12px;
+  color: var(--GR3);
+}
+
+.exit-item {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.exit-btn {
+  width: 100px;
+  height: 40px;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  background-color: var(--PK1);
+}
+
+/* 修改el样式 */
 ::v-deep .el-dialog {
   padding: 0;
   position: relative;

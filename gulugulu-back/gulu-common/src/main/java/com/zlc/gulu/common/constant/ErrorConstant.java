@@ -6,7 +6,7 @@ package com.zlc.gulu.common.constant;
 public class ErrorConstant {
 
 
-    // 约定 使用 201 - 300 作为无划分错误字段
+    // 约定 没有特殊情况就404,需要分类则使用 201 - 300 作为无划分错误字段
     public enum ErrorEnum {
         UPLOAD_FAIL_CREATEFILE(201, "创建上传文件夹失败"),
         UPLOADS_FAIL_MERGEFILE(202, "合并分片失败");

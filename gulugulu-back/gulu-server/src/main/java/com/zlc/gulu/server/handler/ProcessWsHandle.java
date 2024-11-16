@@ -1,5 +1,6 @@
 package com.zlc.gulu.server.handler;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
@@ -7,7 +8,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
+@Slf4j
 @Component
 public class ProcessWsHandle implements WebSocketHandler {
 
@@ -19,7 +20,7 @@ public class ProcessWsHandle implements WebSocketHandler {
         String id = session.getId();
         sessionMap.put(id, session);
         session.sendMessage(new TextMessage(id));
-        System.out.println("ws连接开始:" + session.getId());
+        log.info("视频上传进度条ws开始:" + session.getId());
     }
 
     @Override
@@ -28,13 +29,13 @@ public class ProcessWsHandle implements WebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        System.out.println("ws连接发生错误");
+        log.info("视频上传进度条ws发生错误");
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         sessionMap.remove(session.getId());
-        System.out.println("ws连接关闭");
+        log.info("视频上传进度条ws关闭");
     }
 
     // 支持分片消息

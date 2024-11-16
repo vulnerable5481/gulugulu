@@ -23,3 +23,15 @@ export function register(userVO) {
       throw err;
     });
 }
+
+// 用户退出
+export function exit(token) {
+  return httpRequest
+    .post(`/user/exit?token=${token}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+}

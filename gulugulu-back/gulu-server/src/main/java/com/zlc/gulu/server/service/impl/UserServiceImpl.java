@@ -134,7 +134,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
         Map<String, String> claims = new HashMap<>();
         claims.put("userId", userEntity.getUserId().toString());
         String token = JwtUtils.createJWT(claims);
-        //todo:研究反射之后，自己亲自完成这个功能，本项目所有用到的方法全部自己来封装！
         BeanUtils.copyProperties(userEntity, userVo);
         Map<String, Object> userMap = BeanUtil.beanToMap(userVo, new HashMap<>(),
                 CopyOptions.create()

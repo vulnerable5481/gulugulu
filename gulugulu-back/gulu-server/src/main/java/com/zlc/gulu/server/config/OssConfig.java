@@ -16,8 +16,10 @@ import org.springframework.context.annotation.Scope;
 public class OssConfig {
     @Value("${oss.endpoint}")
     String endpoint;
+    // TODO: 部署项目，别忘了添加环境变量
     // 从环境变量中获取访问凭证。运行本代码示例之前，请确保已设置环境变量OSS_ACCESS_KEY_ID和OSS_ACCESS_KEY_SECRET。
-    EnvironmentVariableCredentialsProvider credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
+    EnvironmentVariableCredentialsProvider credentialsProvider =
+            CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
     @Value("${oss.region}")
     String region;
 
