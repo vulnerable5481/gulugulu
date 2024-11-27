@@ -138,10 +138,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
         Map<String, Object> userMap = BeanUtil.beanToMap(userVo, new HashMap<>(),
                 CopyOptions.create()
                         .setIgnoreNullValue(true)
-                        .setFieldValueEditor((fieldName, fieldValue) -> fieldValue != null ? fieldValue.toString() : null));
+                        .setFieldValueEditor((fieldName, fieldValue) -> fieldValue != null ? fieldValue.toString() :
+                                null));
         String tokenKey = RedisConstant.LOGIN_TOKEN_USER_KEY + token;
         stringRedisTemplate.opsForHash().putAll(tokenKey, userMap);
-            // TODO：redis中保存的用户信息过期，就会导致客户端存储的用户信息携带的token找不到用户导致401
+        // TODO：redis中保存的用户信息过期，就会导致客户端存储的用户信息携带的token找不到用户导致401
         stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.DAYS);
 
         userVo.setToken(token);
@@ -157,12 +158,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
         Boolean b = stringRedisTemplate.delete(key);
         // TODO：未来可能还需要清除一些其他缓存数据、临时数据
 
-        if(b && GuluUtils.isEmpty(UserHolder.getUser())){
+        if (b && GuluUtils.isEmpty(UserHolder.getUser())) {
             return Result.success();
-        }else {
+        } else {
             return Result.error(UserConstant.UserLoginEnum.USER_EXIT_FAIL.getCode(),
                     UserConstant.UserLoginEnum.USER_EXIT_FAIL.getMsg());
         }
+    }
+
+    @Override
+    public UserEntity queryById(Integer userId) {
+        return this.getOne(
+                new LambdaQueryWrapper<UserEntity>().eq(UserEntity::getUserId, userId)
+        );
     }
 }
 

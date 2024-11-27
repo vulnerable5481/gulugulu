@@ -1,4 +1,6 @@
 :root {
+  --text1: #1c1d20;
+  --text2: #323336;
   --color-text-main: #fff;
   --font-size-big: 18px;
 }
@@ -18,6 +20,7 @@
   --GR2: #f1f2f3;
   --GR3: #999999;
   --GR4: #757575;
+  --GR5: #666b72;
   /* 轮播图图片颜色 */
   --Carimg1: #011469;
   --Carimg2: blue;

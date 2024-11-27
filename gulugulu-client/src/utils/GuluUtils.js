@@ -18,6 +18,7 @@ export function isEmpty(obj) {
   }
 }
 
+// 处理日期，格式化 年月日
 export function convertTime(time) {
   time = Math.round(time);
   let h = 0;

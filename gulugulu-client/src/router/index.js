@@ -31,6 +31,25 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
+  // 控制每一次跳转后的滚动位置
+  scrollBehavior(to, from, savedPosition) {
+    // 管他呢，一律顶部完事
+    return { top: 0 };
+    // // 判断目标路由是否是视频详情页路由
+    // if (to.name === 'videoIndex') {
+    //   // 如果是视频详情页，必须滚动到页面顶部
+    //   return { top: 0 };
+    // }
+
+    // // 默认:滚动到顶部/保持之前的滚动位置
+    // if (savedPosition) {
+    //   // 保持之前的滚动位置
+    //   return savedPosition;
+    // } else {
+    //   // 默认滚动到顶部
+    //   return { top: 0 };
+    // }
+  },
 });
 
 // 全局前置守卫

@@ -18,4 +18,6 @@ public interface UserService extends IService<UserEntity> {
     Result login(UserLoginVo userLoginVo);
 
     Result exit(String token);
+
+    UserEntity queryById(Integer userId);
 }

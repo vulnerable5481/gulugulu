@@ -49,7 +49,7 @@ public class UploadServiceImp implements UploadService {
         String hash = chunkVo.getHash();
         MultipartFile chunk = chunkVo.getData();
 
-        // 极速秒传 【如果文件已上传则直接返回】
+        // 秒传 【如果文件已上传则直接返回】
         // 这样就会产生一个问题，无法重复上传同一个文件
         // 允许用户反复上传同一个文件
 //        if(videoService.isVideoExists(hash)){

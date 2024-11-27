@@ -219,7 +219,7 @@
                 </div>
                 <div class="desc-content">
                   <div class="desc-wrap">
-                    <textarea class="desc-textarea" v-model="videoSubmission.description" @change="limitDesc"></textarea>
+                    <textarea class="desc-textarea" v-model="videoSubmission.description" @input="handleInput"></textarea>
                     <div class="desc-size">{{ videoSubmission.description.length }} / 2000</div>
                   </div>
                 </div>
@@ -343,6 +343,26 @@ function limitInput() {
   if (videoSubmission.title.length > 80) {
     videoSubmission.title = videoSubmission.title.slice(0, 80);
   }
+}
+
+// 操作简介换行符  【我本来打算每次换行都加入<br>这样展示到页面就可以直接换行了，但是还有一个更加简单的方法！！！】
+function handleInput(e) {
+  // // 检查是否存在回车符
+  // if (e.inputType === 'insertLineBreak' || e.data === '<br>') {
+  //   // 按下回车符 添加<br>
+  //   videoSubmission.description += '<br>';
+  // } else {
+  //   // 检查行满自动添加<br>
+  //   const lines = videoSubmission.description.split('<br>');
+  //   const lastLine = lines[lines.length - 1];
+  //   // 设置简介单行最大字符数  【根据测试 我写的简介盒子一行最大就48个字符】
+  //   const maxLength = 48;
+  //   if (lastLine.length > maxLength) {
+  //     videoSubmission.description += '<br>';
+  //   }
+  // }
+  // 限制简介字数
+  limitDesc();
 }
 
 // 限制简介字数

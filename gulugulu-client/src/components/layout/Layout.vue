@@ -89,6 +89,8 @@ let randomVideos = reactive([]);
 let videoRefs = ref([]);
 // 正在播放的视频
 let currentPlayingVideo;
+// video.paly()的回调
+let playPromise;
 // 防抖计时器
 let inTimer;
 let outTimer;
@@ -163,9 +165,16 @@ function playVideo(index) {
       videoElement.style.zIndex = 1000;
       videoElement.muted = true; // 关闭声音
       videoElement.src = randomVideos[index].videoUrl; // 确保使用对应的视频 URL
-      videoElement.play();
+      playPromise = videoElement.play();
+      if (playPromise) {
+        playPromise.catch((error) => {
+          console.log('视频播放失败:', error);
+        });
+      } else {
+        console.log('没有获得playPromise');
+      }
     }
-  }, 300);
+  }, 200);
 }
 // 停止预览视频;
 function pauseVideo(index) {
@@ -174,11 +183,21 @@ function pauseVideo(index) {
     index = index - 1;
     const videoElement = videoRefs.value[index];
     if (videoElement) {
-      videoElement.style.zIndex = 10;
-      videoElement.pause();
-      videoElement.currentTime = 0; // 重置进度
+      if (playPromise) {
+        playPromise
+          .then(() => {
+            videoElement.style.zIndex = 10;
+            videoElement.pause();
+            videoElement.currentTime = 0; // 重置进度
+          })
+          .catch((error) => {
+            console.log('视频暂停失败', error);
+          });
+      } else {
+        console.log('palyPromise不存在');
+      }
     }
-  }, 200); // 延迟500ms以上关闭视频,可防止那个讨人厌的报错
+  }, 200);
 }
 
 // 跳转到视频详情页

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zlc.gulu.server.mapper.CommentMapper">
+
+    <select id="listTenRoots" resultType="com.zlc.gulu.pojo.entity.CommentEntity">
+        select *
+        from gl_comment
+        where video_id = #{videoId}
+          and status = #{status}
+          and root_id = #{rootId}
+        order by create_time desc
+        limit #{offset},#{number}
+    </select>
+</mapper>

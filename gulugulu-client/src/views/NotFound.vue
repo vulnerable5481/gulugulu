@@ -8,8 +8,7 @@
         <img src="@/assets/img/notfound/404notfound.png" alt="咕噜咕噜~~~~" />
       </div>
       <div class="rollback-area">
-        <!-- TODO: 后面再说 -->
-        <button class="rollback-btn">返回上一页</button>
+        <button class="rollback-btn" @click="returnLastPage">返回上一页</button>
       </div>
       <div class="error-manga">
         <img class="error-manga-img" :src="currentImg" alt="" />
@@ -19,13 +18,22 @@
 </template>
 
 <script setup>
-import HeaderBar from "@/components/header/HeaderBar.vue";
-import { computed } from "vue";
+import HeaderBar from '@/components/header/HeaderBar.vue';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+
+// 路由
+const router = useRouter();
 
 let currentImg = computed(() => {
   const index = Math.floor(Math.random() * 12) + 1; // 生成 1 到 7 的随机数
   return require(`@/assets/img/notfound/img${index}.png`);
 });
+
+// 返回上一页
+function returnLastPage() {
+  router.back();
+}
 </script>
 
 <style scoped>

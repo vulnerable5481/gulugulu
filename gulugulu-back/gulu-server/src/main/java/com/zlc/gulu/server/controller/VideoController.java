@@ -3,6 +3,7 @@ package com.zlc.gulu.server.controller;
 import com.zlc.gulu.common.result.Result;
 import com.zlc.gulu.pojo.entity.VideoEntity;
 import com.zlc.gulu.pojo.vo.VideoUploadVo;
+import com.zlc.gulu.server.service.CommentService;
 import com.zlc.gulu.server.service.VideoService;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,8 @@ public class VideoController {
 
     @Resource
     private VideoService videoService;
+    @Resource
+    private CommentService commentService;
 
     /*
      *  返回随机视频
@@ -39,7 +42,33 @@ public class VideoController {
      *  获取单个视频详情
      * */
     @GetMapping("/queryVideo")
-    public Result queryVideo(@RequestParam("videoId") Integer videoId){
+    public Result queryVideo(@RequestParam("videoId") Integer videoId) {
         return videoService.queryVideoById(videoId);
     }
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

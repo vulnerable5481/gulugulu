@@ -7,6 +7,8 @@ import java.io.File;
 import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
@@ -142,12 +144,25 @@ public class GuluUtils {
         File[] files = file.listFiles();
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
-                if(!deleteDir(files[i].getAbsolutePath())){
+                if (!deleteDir(files[i].getAbsolutePath())) {
                     return false; //删除失败
                 }
             }
         }
         //删除目录本身
         return file.delete();
+    }
+
+
+    /**
+     * 获取当前时间
+     *
+     * @param
+     * @return {String} 返回当前时间
+     */
+    public static String now() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return now.format(formatter);
     }
 }
