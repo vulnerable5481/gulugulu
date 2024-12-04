@@ -13,11 +13,11 @@ public class JwtInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //判断用户是否有权限访问
-//        UserVo user = UserHolder.getUser();
-//        if (GuluUtils.isEmpty(user) || GuluUtils.isEmpty(user.getUserId())) {
-//            response.setStatus(401);//401 无权限
-//            return false;
-//        }
+        UserVo user = UserHolder.getUser();
+        if (GuluUtils.isEmpty(user) || GuluUtils.isEmpty(user.getUserId())) {
+            response.setStatus(401);//401 无权限
+            return false;
+        }
         //放行
         return true;
     }

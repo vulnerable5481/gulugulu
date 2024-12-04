@@ -24,21 +24,21 @@
         </div>
         <!-- 视频实体 -->
         <!-- <div class="test"></div> -->
-        <GuluPlayer :videoInfo="videoInfo"></GuluPlayer>
+        <GuluPlayer ref="guluPlayerRef" :danmuList="danmuList" :isDanmuOpen="isDanmuOpen" :videoInfo="videoInfo"></GuluPlayer>
         <div class="video-sending-bar">
           <div class="sending-info">1人正在观看，已装填 60 条弹幕</div>
           <div class="danmu-info">
             <i
               class="gulu-bofangqi-danmukai iconfont"
-              :class="isDanmu ? 'danmu-control-active' : 'danmu-control-dead'"
-              v-if="isDanmu"
-              @click="closeDanmu"
+              :class="isDanmuOpen ? 'danmu-control-active' : 'danmu-control-dead'"
+              v-if="isDanmuOpen"
+              @click="changeDanmu"
             ></i>
             <i
               class="gulu-bofangqi-danmuguan iconfont"
-              :class="isDanmu ? 'danmu-control-active' : 'danmu-control-dead'"
-              v-if="!isDanmu"
-              @click="openDanmu"
+              :class="isDanmuOpen ? 'danmu-control-active' : 'danmu-control-dead'"
+              v-if="!isDanmuOpen"
+              @click="changeDanmu"
             ></i>
             <div class="danmu-control-set">
               <i class="gulu-bofangqi-danmugundongkai iconfont danmu-set"></i>
@@ -50,8 +50,8 @@
               <div class="danmu-color">
                 <i class="gulu-shequhuodong iconfont" style="font-size: 18px"></i>
               </div>
-              <input class="danmu-input" type="text" placeholder="发个友善的弹幕见证当下" />
-              <button class="danmu-send-btn">发送</button>
+              <input class="danmu-input" v-model="danmuContent" type="text" placeholder="发个友善的弹幕见证当下" />
+              <button class="danmu-send-btn" @click="handleSendDanmu">发送</button>
             </div>
           </div>
         </div>
@@ -96,10 +96,18 @@
             <div class="comment-header-nav">
               <div class="comment-header-wrap">
                 <div class="nav-title">评论<span class="nav-number">5547</span></div>
-                <div class="nav-hot nav-active" @click="isOrderByHot = true" :style="{ color: isOrderByHot ? 'black' : 'var(--GR3)' }">
+                <div
+                  class="nav-hot nav-active"
+                  @click="changeCommentType(true)"
+                  :style="{ color: commentType == 0 ? 'black' : 'var(--GR3)' }"
+                >
                   最热
                 </div>
-                <div class="nav-new nav-active" @click="isOrderByHot = false" :style="{ color: isOrderByHot ? 'var(--GR3)' : 'black' }">
+                <div
+                  class="nav-new nav-active"
+                  @click="changeCommentType(false)"
+                  :style="{ color: commentType != 0 ? 'black' : 'var(--GR3)' }"
+                >
                   最新
                 </div>
               </div>
@@ -148,7 +156,7 @@
                     <div class="comment-time">{{ comment.createTime }}</div>
                     <div class="comment-like-container">
                       <div class="comment-like"><i class="gulu-dianzan iconfont"></i></div>
-                      <div class="comment-like-count">23</div>
+                      <div class="comment-like-count">{{ comment.likeCount }}</div>
                     </div>
                     <div class="comment-dislike"><i class="gulu-diancai iconfont"></i></div>
                     <div
@@ -200,7 +208,7 @@
                             <div class="comment-time">{{ comment.children[0].createTime }}</div>
                             <div class="comment-like-container">
                               <div class="comment-like"><i class="gulu-dianzan iconfont"></i></div>
-                              <div class="comment-like-count">23</div>
+                              <div class="comment-like-count">{{ comment.children[0].likeCount }}</div>
                             </div>
                             <div class="comment-dislike"><i class="gulu-diancai iconfont"></i></div>
                             <div
@@ -255,7 +263,7 @@
                             <div class="comment-time">{{ childComment.createTime }}</div>
                             <div class="comment-like-container">
                               <div class="comment-like"><i class="gulu-dianzan iconfont"></i></div>
-                              <div class="comment-like-count">23</div>
+                              <div class="comment-like-count">{{ childComment.likeCount }}</div>
                             </div>
                             <div class="comment-dislike"><i class="gulu-diancai iconfont"></i></div>
                             <div
@@ -310,12 +318,13 @@
 
 <script setup>
 import { getCommentTree, sendComment } from '@/apis/videoApi/commentRequest';
+import { listDanmu, sendDanmu } from '@/apis/videoApi/danmuRequest';
 import { queryVideo } from '@/apis/videoApi/videoRequest';
 import HeaderBar from '@/components/header/HeaderBar.vue';
 import GuluPlayer from '@/components/player/guluPlayer.vue';
 import { useUserStore } from '@/store';
 import { ElMessage } from 'element-plus';
-import { computed, onBeforeMount, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // 路由
@@ -324,30 +333,36 @@ const router = useRouter();
 
 // commentList元素
 const commentList = ref();
+// 咕噜播放器 dom元素
+const guluPlayerRef = ref();
 
 // 是否展示简介
 const isExpanded = ref(false);
 // 是否需要展示更多按钮
 const isNeedExpanded = ref(false);
 // 是否播放弹幕
-const isDanmu = ref(true);
-// 是否按照‘最热’排序评论
-const isOrderByHot = ref(true);
+const isDanmuOpen = ref(true);
 // 是否正在评论中
 const isCommenting = ref(false);
 // 加载评论类型 0:热度排序，1:时间排序
-let commentType = ref(1);
+const commentType = ref(0);
 // 评论矩阵 X轴坐标
-let CommentMatrix_X = ref(-1);
+const CommentMatrix_X = ref(-1);
 // 评论矩阵 Y轴坐标
-let CommentMatrix_Y = ref(-1);
+const CommentMatrix_Y = ref(-1);
 // 记录已展开评论的数组
-let clickedComments = ref([]);
+const clickedComments = ref([]);
 // 评论树偏移量
-let offset = ref(0);
+const offset = ref(0);
+// 要发送弹幕的内容
+const danmuContent = ref('');
+// 要发送弹幕的类型
+const danmuType = ref(1); // 默认滚动
+// 弹幕列表
+const danmuList = ref([]);
 
 // 记录上次滚动位置
-let lastScrollPosition = 500; // 记录上次滚动位置,初始值500，忽略视频播放器的长度
+let lastScrollPosition = 500; // 记录上次滚动位置,初始值500,忽略视频播放器的长度
 // 节流标记
 let isThrottled = false;
 
@@ -367,14 +382,54 @@ let rootContent = ref('');
 let response = ref('');
 // 评论树
 let commentTree = ref([]);
+// 热度评论树
+let hotTree = ref([]);
+// 时间评论树
+let timeTree = ref([]);
 
-// 关闭弹幕
-function closeDanmu() {
-  isDanmu.value = false;
+// 展示/隐藏弹幕
+function changeDanmu() {
+  isDanmuOpen.value = !isDanmuOpen.value;
+  nextTick(() => {
+    //虽然上面的代码修改了isDanmuOpen的值，但是没有立刻同步到dom中，需要nextTick来确保DOM在isDanmuOpen更新后同步
+    guluPlayerRef.value.showDanmu();
+  });
 }
-// 开启弹幕
-function openDanmu() {
-  isDanmu.value = true;
+
+// 发送弹幕
+function handleSendDanmu() {
+  // 构建弹幕实体
+  const danmu = {
+    videoId: videoId.value,
+    userId: userInfo.userId,
+    content: danmuContent.value,
+    type: danmuType.value,
+    time: guluPlayerRef.value?.getVideoRefValue().currentTime,
+  };
+  sendDanmu(danmu).then((response) => {
+    ElMessage.success('发送成功!');
+    // 立即更新当前弹幕列表
+    guluPlayerRef.value.displayNewestDanmu(danmuContent.value);
+    // 清除缓存
+    danmuContent.value = '';
+  });
+}
+
+// 切换评论排序类型
+function changeCommentType(isHot) {
+  // 重置分页偏移量
+  offset.value = 0;
+  if (isHot) {
+    // 按照热度排序
+    commentType.value = 0;
+    // timeTree.value = commentTree.value; // save功能 以后再说吧，懒得写了
+    initCommentTree(); // 重置评论区
+  } else {
+    // 按照时间排序
+    commentType.value = 1;
+    // hotTree.value = commentTree.value; // save功能  以后再说吧，懒得写了
+    initCommentTree(); // 重置评论区
+  }
 }
 
 // 回复评论
@@ -440,21 +495,22 @@ function clearSendComment() {
 // 滚动加载评论
 function loadComment(e) {
   const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+  // console.log(scrollPosition);
   if (scrollPosition - lastScrollPosition >= 500 && !isThrottled) {
     isThrottled = true; // 设置节流标记，防止多次触发
     lastScrollPosition = scrollPosition; // 更新上次滚动位置
+    // console.log('上次滚动位置', lastScrollPosition);
     getCommentTree(videoId.value, offset.value, commentType.value)
       .then(({ data, code }) => {
         // 如果code == 501 表示评论已加载完毕
         if (code == 501) {
           window.removeEventListener('scroll', loadComment);
         }
+        // 取消节流标记
+        isThrottled = false;
         // 更新评论树分页偏移量
         offset.value += 10;
         commentTree.value.push(...data); // push 扩展数据数组
-        // 取消节流标记
-        isThrottled = false;
-        console.log(commentTree.value);
       })
       .catch((error) => {
         console.log(error);
@@ -484,12 +540,22 @@ function initVideo() {
       });
     }
   });
+  // 初始化评论区前十条评论
+  initCommentTree();
+  // 初始化弹幕
+  listDanmu(videoId.value).then(({ data }) => {
+    danmuList.value = data.data;
+  });
+}
+
+// 初始化评论区
+function initCommentTree() {
   // 加载评论区
   getCommentTree(videoId.value, offset.value, commentType.value).then(({ data }) => {
+    commentTree.value = data;
     offset.value += 10;
-    commentTree.value = [...data];
-    // console.log(commentTree.value);
     window.addEventListener('scroll', loadComment); // 监听事件-滚动加载评论区
+    lastScrollPosition = 500; // 初始化滚动距离，默认为500
   });
 }
 
@@ -497,6 +563,11 @@ onMounted(() => {
   window.scrollTo(0, 0);
   // 初始化视频详情
   initVideo();
+});
+
+onUnmounted(() => {
+  // 取消绑定事件
+  window.removeEventListener('scroll', loadComment); // 监听事件-滚动加载评论区
 });
 </script>
 

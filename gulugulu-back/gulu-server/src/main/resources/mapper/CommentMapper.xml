@@ -4,13 +4,37 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zlc.gulu.server.mapper.CommentMapper">
 
-    <select id="listTenRoots" resultType="com.zlc.gulu.pojo.entity.CommentEntity">
+    <select id="listTenRootsOrderByTime" resultType="com.zlc.gulu.pojo.entity.CommentEntity">
         select *
         from gl_comment
-        where video_id = #{videoId}
-          and status = #{status}
-          and root_id = #{rootId}
+        <where>
+            <if test="videoId != null">
+                video_id = #{videoId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="rootId != null">
+                and root_id = #{rootId}
+            </if>
+        </where>
         order by create_time desc
-        limit #{offset},#{number}
+        limit #{offset}, #{number}
+    </select>
+    <select id="listTenRootsOrderByLikeCount" resultType="com.zlc.gulu.pojo.entity.CommentEntity">
+        select * from gl_comment
+        <where>
+            <if test="videoId != null">
+                video_id = #{videoId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="rootId != null">
+                and root_id = #{rootId}
+            </if>
+        </where>
+        order by like_count desc
+        limit #{offset}, #{number}
     </select>
 </mapper>

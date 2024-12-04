@@ -83,52 +83,77 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentEntity
         return Result.success(res);
     }
 
-    /*
-     *  根据分页偏移量获取根评论,每次获取至多十条根评论
-     * */
+    /**
+     * 根据分页偏移量获取根评论,每次获取至多十条根评论
+     *
+     * @param offset 分页偏移量
+     * @param type   0:按照热度排序，1：按照最新时间排序
+     * @return
+     */
     private List<CommentEntity> getRoots(Integer videoId, int offset, int type) {
-        String key = CommentConstant.COMMENT_VIDEO + videoId;
+        String key = type == 0 ? CommentConstant.COMMENT_VIDEO_HOT + videoId :
+                CommentConstant.COMMENT_VIDEO_NEWEST + videoId;
         List<CommentEntity> roots = null;
+
         // 查询redis缓存
-        Set<String> set = type == 0 ? redisUtils.zReverange(key, offset, offset + 9) :
-                redisUtils.zReverange(key, offset, offset + 9);
+        Set<String> set = redisUtils.zReverange(key, offset, offset + 9);
         if (set != null && set.size() > 0) {
-            List<Long> ids = set.stream().map(item -> {
-                return Long.parseLong(item);
-            }).collect(Collectors.toList());
+            List<Long> ids = set.stream().map(item ->
+                    Long.parseLong(item)
+            ).collect(Collectors.toList());
             // 刷新缓存
             redisUtils.expire(key, CommentConstant.COMMENT_VIDEO_EXPIRE, CommentConstant.COMMENT_VIDEO_TIMEUNIT);
             // 根据根评论Ids查询出所需根评论
-            roots = this.getBaseMapper().selectList(new LambdaQueryWrapper<CommentEntity>().in(CommentEntity::getCommentId, ids).orderByDesc(CommentEntity::getCreateTime));
+            roots = type == 0 ?
+                    this.getBaseMapper().selectList(new LambdaQueryWrapper<CommentEntity>().in(CommentEntity::getCommentId, ids)
+                            .orderByDesc(CommentEntity::getLikeCount)) :
+                    this.getBaseMapper().selectList(new LambdaQueryWrapper<CommentEntity>().in(CommentEntity::getCommentId, ids)
+                            .orderByDesc(CommentEntity::getCreateTime));
+            // 返回数据
+            return roots;
         }
 
         // 缓存未命中,查询数据库
-        if (roots == null) {
-            // 获取根评论
-            roots = this.getBaseMapper().listTenRoots(videoId, 0, 0, offset, 10);
-            // 判断视频是否还存在根评论
-            if (roots == null && roots.size() == 0) {
-                return Collections.emptyList();
-            }
-
-            // 异步更新所有根评论->reids缓存
-            CompletableFuture.runAsync(() -> {
-                List<CommentEntity> finalRoots =
-                        this.list(new LambdaQueryWrapper<CommentEntity>().eq(CommentEntity::getVideoId, videoId).eq(CommentEntity::getRootId, 0).eq(CommentEntity::getStatus, 0));
-                List<RedisUtils.ZObjTime> collections = finalRoots.stream().parallel().map(root -> {
-                    Integer id = root.getCommentId();
-                    // 指定日期时间格式
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                    // 将字符串转换为 LocalDateTime
-                    LocalDateTime localDateTime = LocalDateTime.parse(root.getCreateTime(), formatter);
-                    // 转换为时间戳（秒级）
-                    long timestamp = localDateTime.toEpochSecond(ZoneOffset.UTC); // 使用 UTC 时区
-                    return new RedisUtils.ZObjTime(id, timestamp);
-                }).collect(Collectors.toList());
-                redisUtils.zsetBatchByTime(key, collections);
-                redisUtils.expire(key, CommentConstant.COMMENT_VIDEO_EXPIRE, CommentConstant.COMMENT_VIDEO_TIMEUNIT);
-            });
+        roots = type == 0 ? this.getBaseMapper().listTenRootsOrderByLikeCount(videoId, 0, 0,offset, 10)
+                : this.getBaseMapper().listTenRootsOrderByTime(videoId, 0, 0, offset, 10);
+        // 判断视频是否还存在根评论
+        if (roots == null && roots.size() == 0) {
+            return Collections.emptyList();
         }
+
+        // 异步更新所有根评论->reids缓存
+        CompletableFuture.runAsync(() -> {
+            // 按照时间更新
+            String newestKey = CommentConstant.COMMENT_VIDEO_NEWEST + videoId; // key
+            List<CommentEntity> newestRoots =           // value
+                    this.list(
+                            new LambdaQueryWrapper<CommentEntity>().eq(CommentEntity::getVideoId, videoId)
+                                    .eq(CommentEntity::getRootId, 0).eq(CommentEntity::getStatus, 0));
+            List<RedisUtils.ZObjTime> zObjtimeCollections = newestRoots.stream().parallel().map(root -> {
+                Integer id = root.getCommentId();
+                // 指定日期时间格式
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                // 将字符串转换为 LocalDateTime
+                LocalDateTime localDateTime = LocalDateTime.parse(root.getCreateTime(), formatter);
+                // 转换为时间戳（秒级）
+                long timestamp = localDateTime.toEpochSecond(ZoneOffset.UTC); // 使用 UTC 时区
+                return new RedisUtils.ZObjTime(id, timestamp);
+            }).collect(Collectors.toList());
+            redisUtils.zsetBatch(newestKey, zObjtimeCollections);
+            redisUtils.expire(newestKey, CommentConstant.COMMENT_VIDEO_EXPIRE, CommentConstant.COMMENT_VIDEO_TIMEUNIT);
+
+            // 按照热度更新
+            String hotHkey = CommentConstant.COMMENT_VIDEO_HOT + videoId;   // key
+            List<CommentEntity> hotRoots = this.list(            // value
+                    new LambdaQueryWrapper<CommentEntity>().eq(CommentEntity::getVideoId, videoId)
+                            .eq(CommentEntity::getRootId, 0).eq(CommentEntity::getStatus, 0)
+            );
+            List<RedisUtils.ZObjScore> zObjScoreCollections = hotRoots.stream().parallel().map(root ->
+                    new RedisUtils.ZObjScore(root.getCommentId(), root.getLikeCount().doubleValue())
+            ).collect(Collectors.toList());
+            redisUtils.zsetBatchByScore(hotHkey, zObjScoreCollections);
+            redisUtils.expire(hotHkey, CommentConstant.COMMENT_VIDEO_EXPIRE, CommentConstant.COMMENT_VIDEO_TIMEUNIT);
+        });
 
         return roots;
     }
@@ -168,7 +193,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentEntity
                     long l = System.currentTimeMillis();
                     return new RedisUtils.ZObjTime(id, l);
                 }).collect(Collectors.toList());
-                redisUtils.zsetBatchByTime(key, collections); // 批量添加到缓存
+                redisUtils.zsetBatch(key, collections); // 批量添加到缓存
                 redisUtils.expire(key, CommentConstant.COMMENT_VIDEO_EXPIRE, CommentConstant.COMMENT_VIDEO_TIMEUNIT);
             });
         }
@@ -221,23 +246,28 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentEntity
 
         // 异步操作
         CompletableFuture.runAsync(() -> {
+            String value = commentEntity.getCommentId().toString();
             // 存储到redis缓存
             if (commentEntity.getRootId() != 0) {
                 // 不是根评论
                 String key =
                         CommentConstant.COMMENT_REPLY + commentEntity.getVideoId() + ":" + commentEntity.getRootId();
-                String value = commentEntity.getCommentId().toString();
                 redisUtils.zset(key, value);
                 redisUtils.expire(key, CommentConstant.COMMENT_VIDEO_EXPIRE, CommentConstant.COMMENT_VIDEO_TIMEUNIT);
             } else {
                 // 是根评论
-                String key = CommentConstant.COMMENT_VIDEO + commentEntity.getVideoId();
-                String value = commentEntity.getCommentId().toString();
-                redisUtils.zset(key, value);
-                redisUtils.expire(key, CommentConstant.COMMENT_VIDEO_EXPIRE, CommentConstant.COMMENT_VIDEO_TIMEUNIT);
+                // newest
+                String newestKey = CommentConstant.COMMENT_VIDEO_NEWEST + commentEntity.getVideoId();
+                redisUtils.zset(newestKey, value);
+                redisUtils.expire(newestKey, CommentConstant.COMMENT_VIDEO_EXPIRE,
+                        CommentConstant.COMMENT_VIDEO_TIMEUNIT);
+                // hot
+                String hotKey = CommentConstant.COMMENT_VIDEO_NEWEST + commentEntity.getVideoId();
+                redisUtils.zset(hotKey, value);
+                redisUtils.expire(hotKey, CommentConstant.COMMENT_VIDEO_EXPIRE, CommentConstant.COMMENT_VIDEO_TIMEUNIT);
             }
 
-            // 增加视频评论数
+            // todo:增加视频评论数
         });
 
         // 评论回显

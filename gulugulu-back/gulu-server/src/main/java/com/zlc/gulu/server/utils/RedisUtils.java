@@ -99,7 +99,7 @@ public class RedisUtils {
     // ZSET 相关操作 begin ----------------------------------------------------------------------------------------------
 
     /**
-     * 添加一条数据到 sorted set (使用时间戳作为评分)
+     * 添加一条数据到 sorted set 【默认使用时间戳作为评分】
      *
      * @return
      */
@@ -119,13 +119,13 @@ public class RedisUtils {
     }
 
     /**
-     * 批量添加数据到 Redis 的 Sorted Set
+     * 批量添加数据到 Redis 的 Sorted Set 【默认使用时间戳作为评分】
      *
      * @param key        Redis 中有序集合的键
      * @param collection 需要添加的自定义集合，包含成员和时间
      * @return 成功添加的元素个数
      */
-    public long zsetBatchByTime(String key, Collection<ZObjTime> collection) {
+    public long zsetBatch(String key, Collection<ZObjTime> collection) {
         // 将 collection 转换为 Redis 需要的 TypedTuple 格式，并批量添加
         Set<ZSetOperations.TypedTuple<String>> tuples = convertToTypedTupleSetByTime(collection);
         Long add = redisTemplate.opsForZSet().add(key, tuples);
@@ -138,6 +138,26 @@ public class RedisUtils {
         return collection.stream()
                 .map(zObjTime -> new DefaultTypedTuple<>(zObjTime.getMember().toString(),
                         (double) zObjTime.getTime()))
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * 批量添加数据到Redis的Sorted Set
+     *
+     * @param key
+     * @return collection   需要添加的自定义集合，包含成员和平分
+     */
+    public long zsetBatchByScore(String key, Collection<ZObjScore> collection) {
+        // 将collection 转换为 Redis需要的 TypeTuple格式，并批量添加
+        Set<ZSetOperations.TypedTuple<String>> typedTuples = convertToTypedTupleSetByScore(collection);
+        Long add = redisTemplate.opsForZSet().add(key, typedTuples);
+        return add;
+    }
+
+    public Set<ZSetOperations.TypedTuple<String>> convertToTypedTupleSetByScore(Collection<ZObjScore> collection) {
+        return collection.stream()
+                .map(zObjScore -> new DefaultTypedTuple<>(zObjScore.getMember().toString(),
+                        zObjScore.getScore()))
                 .collect(Collectors.toSet());
     }
 

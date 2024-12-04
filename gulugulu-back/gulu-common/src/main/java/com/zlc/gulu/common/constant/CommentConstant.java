@@ -7,7 +7,8 @@ import java.util.concurrent.TimeUnit;
  *  评论相关错误统一返回50x
  * */
 public class CommentConstant {
-    public static final String COMMENT_VIDEO = "comment:video:";
+    public static final String COMMENT_VIDEO_HOT = "comment:video:hot:";
+    public static final String COMMENT_VIDEO_NEWEST = "comment:video:newest:";
     public static final String COMMENT_REPLY = "comment:reply:";
 
     public static final long COMMENT_VIDEO_EXPIRE = 60 * 60;
