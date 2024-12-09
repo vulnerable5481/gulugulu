@@ -54,7 +54,7 @@
           <span>登录</span>
         </div>
         <!-- 登录显示头像 -->
-        <div class="avatar-box" @mousemove="handleMouseEnter" @mouseleave="handleMouseLeave" v-else>
+        <div class="avatar-bubble" @mousemove="handleMouseEnter" @mouseleave="handleMouseLeave" v-else>
           <img class="avatar" :src="userInfo.avatar" :alt="`${userInfo.userName}的头像`" :class="{ 'avatar-big': isAvatarBig }" />
           <div class="avatar-panel" :style="{ display: popoverDisplay }">
             <div class="panel-proper">
@@ -95,10 +95,17 @@
           <span>大会员</span>
         </a>
       </li>
-      <li>
+      <li class="msg-box" @mouseenter="displayMsgBubble" @mouseleave="hideMsgBubble">
         <a href="#">
           <i style="font-size: 21px" class="gulu-xiaoxi iconfont"></i>
           <span>消息</span>
+          <ul class="msg-bubble header-bubble" v-if="isOpenMsg">
+            <li><a href="#">回复我的</a></li>
+            <li><a href="#">@我的</a></li>
+            <li><a href="#">收到的赞</a></li>
+            <li><a href="#">系统消息</a></li>
+            <li><a href="#">我的消息</a></li>
+          </ul>
         </a>
       </li>
       <li>
@@ -159,15 +166,18 @@ const loginOrRegister = ref();
 // 获取userStore
 const userStore = useUserStore();
 
-// 登录框的显隐藏
-let loginVisible = ref(false);
+// 是否展示登录框
+const loginVisible = ref(false);
 // 头像气泡框的显隐
-let isAvatarBig = ref(false);
-let popoverDisplay = ref('none');
+const isAvatarBig = ref(false);
+const popoverDisplay = ref('none');
+let avatarInTimer;
+let avatarOutTimer;
+// 气泡框的显隐
+const isOpenMsg = ref(false);
+let msgInTimer;
+let msgOutTimer;
 
-// 节流计时器
-let inTimer;
-let outTimer;
 // 搜索内容
 let searchInput = ref('');
 // 用户信息
@@ -206,18 +216,36 @@ function handleExit() {
 
 // 悬浮头像时，气泡的显隐
 function handleMouseEnter() {
-  clearTimeout(outTimer); // 这里要清除隐藏的计时器，否则在0.2秒内出入头像，会导致头像变大但气泡突然消失
-  inTimer = setTimeout(() => {
+  clearTimeout(avatarOutTimer); // 这里要清除隐藏的计时器，否则在0.2秒内出入头像，会导致头像变大但气泡突然消失
+  avatarInTimer = setTimeout(() => {
     popoverDisplay.value = '';
     isAvatarBig.value = true;
   }, 100);
 }
 function handleMouseLeave() {
-  clearTimeout(inTimer); // 清除显示计时器防止快速经过头像时的气泡闪烁
-  outTimer = setTimeout(() => {
+  clearTimeout(avatarInTimer); // 清除显示计时器防止快速经过头像时的气泡闪烁
+  avatarOutTimer = setTimeout(() => {
     popoverDisplay.value = 'none';
     isAvatarBig.value = false;
   }, 200);
+}
+
+// 消息栏的显隐
+function displayMsgBubble() {
+  if (msgOutTimer) {
+    clearTimeout(msgOutTimer);
+  }
+  msgInTimer = setTimeout(() => {
+    isOpenMsg.value = true;
+  }, 300);
+}
+function hideMsgBubble() {
+  if (msgInTimer) {
+    clearTimeout(msgInTimer);
+  }
+  msgOutTimer = setTimeout(() => {
+    isOpenMsg.value = false;
+  }, 300);
 }
 </script>
 
@@ -340,6 +368,7 @@ function handleMouseLeave() {
 }
 
 .right-entry {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-evenly;
@@ -348,7 +377,7 @@ function handleMouseLeave() {
   height: 64px;
 }
 
-.right-entry li a {
+.right-entry > li a {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -358,7 +387,7 @@ function handleMouseLeave() {
   cursor: pointer;
 }
 
-.right-entry li:last-child a {
+.right-entry > li:last-child a {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -379,8 +408,55 @@ function handleMouseLeave() {
   }
 }
 
-.right-entry li:last-child a:hover {
+.right-entry > li:last-child a:hover {
   background-color: var(--PK-Hover1);
+}
+
+.header-bubble {
+  top: 100%;
+  position: absolute;
+  width: 142px;
+  border-radius: 8px;
+}
+
+.msg-box {
+  transition: animation 0.3s linear;
+}
+.msg-box:hover .gulu-xiaoxi {
+  animation: jump 0.3s;
+}
+@keyframes jump {
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.msg-bubble {
+  left: 16%;
+  padding: 12px 0;
+  background-color: var(--Wt1);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  border: 1px solid var(--GR1);
+}
+.msg-bubble > li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 10px 0 10px 27px;
+  text-align: left;
+  font-size: 14px;
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+.msg-bubble > li a {
+  color: var(--Text3);
+}
+.msg-bubble > li:hover {
+  background-color: var(--GR2);
 }
 
 .avatar {
@@ -412,7 +488,7 @@ function handleMouseLeave() {
   color: var(--Wt1);
 }
 
-.avatar-box {
+.avatar-bubble {
   position: relative;
   z-index: 1;
 }

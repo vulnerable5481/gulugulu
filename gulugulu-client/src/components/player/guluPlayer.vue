@@ -12,6 +12,7 @@
       ref="videoRef"
       loop
       :src="videoInfo.videoUrl"
+      @dblclick="changeFullScreen"
       @click="changeVideoStatus(true)"
       @canplay="finishLoading"
       @seeked="handleSeedked"
@@ -38,7 +39,6 @@
             {{ currentHMS + '&nbsp;/&nbsp;' + convertTime(videoInfo.duration) }}
           </div>
         </div>
-        <!-- 有空再写吧，要怎么做到B站那种效果呢？ -->
         <div class="controls-center" :class="isFullScreen ? 'controls-center-active' : ''">
           <div class="gl-video-sending-bar">
             <div class="gl-danmu-info">
@@ -72,19 +72,54 @@
           </div>
         </div>
         <div class="controls-right">
-          <div class="gl-resolution" :style="{ fontSize: isFullScreen ? '16px' : '14px' }">1080P&nbsp;&nbsp;高清</div>
-          <div class="gl-speed" :style="{ fontSize: isFullScreen ? '16px' : '14px' }">
-            <span class="gl-speed-font">倍速</span>
-            <ul class="gl-speed-menu" :class="isFullScreen ? 'gl-speed-menu-big' : 'gl-speed-menu-small'">
-              <li>2.0x</li>
-              <li>1.5x</li>
-              <li>1.25x</li>
-              <li>1.0x</li>
-              <li>0.75x</li>
-              <li>0.5x</li>
+          <div
+            class="gl-resolution"
+            :style="{ fontSize: isFullScreen ? '16px' : '14px' }"
+            @mouseenter="openVideoCtr(3)"
+            @mouseleave="closeVideoCtr(3)"
+          >
+            <span>1080P&nbsp;&nbsp;高清</span>
+            <ul
+              v-if="isOpenResolution"
+              class="gl-resolution-menu"
+              :class="isFullScreen ? 'gl-resolution-menu-big' : 'gl-resolution-menu-small'"
+            >
+              <li>1080P超清</li>
+              <li>720P高清</li>
+              <li>480P清晰</li>
+              <li>360P流畅</li>
             </ul>
           </div>
-          <i class="gl-volume gulu-shengyin_shiti" :class="isFullScreen ? 'gl-fullScreen-entry' : 'gl-common-entry'"></i>
+          <div
+            class="gl-speed"
+            :style="{ fontSize: isFullScreen ? '16px' : '14px' }"
+            @mouseenter="openVideoCtr(1)"
+            @mouseleave="closeVideoCtr(1)"
+          >
+            <span class="gl-speed-font">倍速</span>
+            <ul class="gl-speed-menu" v-if="isOpenSpeed" :class="isFullScreen ? 'gl-speed-menu-big' : 'gl-speed-menu-small'">
+              <li @click="changeSpeed(2)">2.0x</li>
+              <li @click="changeSpeed(1.5)">1.5x</li>
+              <li @click="changeSpeed(1.25)">1.25x</li>
+              <li @click="changeSpeed(1.0)">1.0x</li>
+              <li @click="changeSpeed(0.75)">0.75x</li>
+              <li @click="changeSpeed(0.5)">0.5x</li>
+            </ul>
+          </div>
+          <div class="gl-voice" ref="glVoiceRef" @mouseenter="openVideoCtr(2)">
+            <i class="gl-volume gulu-shengyin_shiti" :class="isFullScreen ? 'gl-fullScreen-entry' : 'gl-common-entry'"></i>
+            <el-slider
+              v-if="isOpenVolume"
+              class="gl-volume-menu"
+              :class="isFullScreen ? 'gl-volume-menu-big' : 'gl-volume-menu-small'"
+              v-model="volume"
+              @change="closeVolumeMenu"
+              @input="changeVolume"
+              @mousedown="deleteVolumeEnter"
+              vertical
+              height="100px"
+            />
+          </div>
           <i class="gl-set gulu-shezhi" :class="isFullScreen ? 'gl-fullScreen-entry' : 'gl-common-entry'"></i>
           <i class="gl-picture gulu-huazhonghua" :class="isFullScreen ? 'gl-fullScreen-entry' : 'gl-common-entry'"></i>
           <i class="gl-full gulu-quanping" :class="isFullScreen ? 'gl-fullScreen-entry' : 'gl-common-entry'" @click="changeFullScreen"></i>
@@ -116,6 +151,8 @@ const videoRef = ref();
 const glProgress = ref();
 // 弹幕轨道 dom元素
 const tracksRef = ref();
+// 音量设置界面 dom元素
+const glVoiceRef = ref();
 
 // 视频是否正在加载
 const isloading = ref(true);
@@ -125,10 +162,28 @@ const isPaused = ref(false);
 const isFullScreen = ref(false);
 // 是否展示弹幕
 const { isDanmuOpen } = toRefs(props);
+// 视频设置相关
+const isOpenSpeed = ref(false);
+const isOpenVolume = ref(false);
+const isOpenResolution = ref(false);
+const volume = ref(0);
+// 事件处理函数的引用    【专门为了解决ELmentUI 与 v-if的冲突 而这样设计的,有点不好评价，感觉不如我自己手写的方法好！】
+const closeVolumeCtr = () => closeVideoCtr(2); // 封装成函数引用
+// 用一个对象来存储每个视频控制界面的定时器
+let videoInTimers = {
+  speed: null,
+  volume: null,
+  resolution: null,
+};
+let videoOutTimers = {
+  speed: null,
+  volume: null,
+  resolution: null,
+};
 
 // video.play()
 let playPromise;
-// 节流计时器
+// 视频防抖计时器
 let playTimer;
 let pauseTimer;
 // 视频当前播放时间
@@ -147,15 +202,8 @@ const tracks = ref(0);
 let oldTracks = 0; // 该变量用于控制缩小全屏后，恢复弹幕轨道数量
 // 弹幕索引
 let dmIndex = 0;
-// 弹幕轨道实体
-const track = {
-  danmus: [], // 弹幕数组
-  offset: 0, // 轨道已占据的宽度
-  push: function () {}, // 添加弹幕
-  remove: function () {}, // 移除弹幕
-  upadteOffset: function () {}, // 更新弹幕轨道
-  reset: function () {}, // 重置弹幕数组及轨道
-};
+// 要发送弹幕的内容
+const danmuContent = ref('');
 
 // 修改视频状态
 function changeVideoStatus(ischanged) {
@@ -235,6 +283,122 @@ function handleKeyboard(e) {
   }
 }
 
+/**
+ * 展示视频设置
+ * @param  type 1:倍速控制;2:音量控制;3:视频清晰度控制;4:画中画控制;5:设置开关
+ */
+function openVideoCtr(type) {
+  switch (type) {
+    case 1:
+      // 倍速控制
+      if (videoOutTimers.speed) {
+        clearTimeout(videoOutTimers.speed);
+      }
+      videoInTimers.speed = setTimeout(() => {
+        isOpenSpeed.value = true;
+      }, 200);
+      break;
+    case 2:
+      // 音量控制
+      if (videoOutTimers.volume) {
+        clearTimeout(videoOutTimers.volume);
+      }
+      videoInTimers.volume = setTimeout(() => {
+        isOpenVolume.value = true;
+      }, 200);
+      break;
+    case 3:
+      // 视频清晰度控制
+      if (videoOutTimers.resolution) {
+        clearTimeout(videoOutTimers.resolution);
+      }
+      videoOutTimers.resolution = setTimeout(() => {
+        isOpenResolution.value = true;
+      }, 200);
+      break;
+    case 4:
+      // 画中画控制
+      break;
+
+    case 5:
+      // 设置开关控制
+      break;
+
+    default:
+      break;
+  }
+}
+/**
+ * 关闭视频设置
+ * @param  type 1:倍速控制;2:音量控制;3:视频清晰度控制;4:画中画控制;5:设置开关
+ */
+function closeVideoCtr(type) {
+  switch (type) {
+    case 1:
+      // 倍速控制
+      if (videoInTimers.speed) {
+        clearTimeout(videoInTimers.speed);
+      }
+      videoOutTimers.speed = setTimeout(() => {
+        isOpenSpeed.value = false;
+      }, 200);
+      break;
+    case 2:
+      // 音量控制
+      if (videoInTimers.volume) {
+        clearTimeout(videoInTimers.volume);
+      }
+      videoOutTimers.volume = setTimeout(() => {
+        isOpenVolume.value = false;
+      }, 200);
+      break;
+    case 3:
+      // 视频清晰度控制
+      if (videoInTimers.resolution) {
+        clearTimeout(videoInTimers.resolution);
+      }
+      videoOutTimers.resolution = setTimeout(() => {
+        isOpenResolution.value = false;
+      }, 200);
+      break;
+    case 4:
+      // 画中画控制
+      break;
+
+    case 5:
+      // 设置开关控制
+      break;
+
+    default:
+      break;
+  }
+}
+
+/**
+ * 控制视频倍速
+ * @param  speed 视频倍速
+ */
+function changeSpeed(speed) {
+  videoRef.value.playbackRate = speed;
+  console.log(videoRef.value.playbackRate);
+}
+
+// 控制音量大小
+function changeVolume() {
+  videoRef.value.volume = volume.value / 100;
+}
+// 关闭音量设置界面
+function closeVolumeMenu() {
+  // 恢复音量图标自动关闭
+  glVoiceRef.value.addEventListener('mouseleave', closeVolumeCtr);
+  closeVideoCtr(2);
+}
+// 清除音量图标自动关闭事件
+function deleteVolumeEnter() {
+  if (glVoiceRef.value) {
+    glVoiceRef.value.removeEventListener('mouseleave', closeVolumeCtr);
+  }
+}
 // 点击更新进度条
 function calcProcessLength(e) {
   // 计算进度条更新后的位置
@@ -245,6 +409,8 @@ function calcProcessLength(e) {
   videoRef.value.currentTime = videoInfo.duration * rate;
   // 更新进度条
   changeProgress();
+  // 更新视频状态 【只要点击进度条则一定处于播放状态】
+  isPaused.value = false;
 }
 
 // 更新进度条
@@ -466,6 +632,8 @@ function finishLoading() {
   // 加载弹幕轨道数量
   tracks.value = Math.floor(videoRef.value?.clientHeight / trackHeight);
   oldTracks = tracks.value;
+  // 初始化音量
+  volume.value = videoRef.value.volume * 100;
   // 取消遮罩层
   isloading.value = false;
   // 视频自动播放
@@ -479,6 +647,11 @@ defineExpose({
   getVideoRefValue() {
     return videoRef.value; // 通过 getter 直接暴露 videoRef.value
   },
+});
+// 事件处理函数的引用
+onMounted(() => {
+  // 监听事件
+  glVoiceRef.value.addEventListener('mouseleave', closeVolumeCtr); // 专门搞个事件处理函数的引用是为了解决音量设置menu与elmentUI的冲突
 });
 
 onBeforeUnmount(() => {
@@ -742,6 +915,7 @@ onBeforeUnmount(() => {
 .gl-speed-menu {
   /* display: none; */
   width: 70px;
+  font-size: 14px;
   position: absolute;
   top: 0;
 }
@@ -761,11 +935,61 @@ onBeforeUnmount(() => {
 }
 .gl-speed-menu-small {
   right: calc(1 / 5 * 100%);
-  transform: translate(35%, -110%);
+  transform: translate(35%, -109%);
 }
 .gl-speed-menu-big {
   right: calc(1 / 7 * 100%);
-  transform: translate(35%, -120%);
+  transform: translate(35%, -116%);
+}
+
+.gl-resolution-menu {
+  width: 150px;
+  font-size: 13px;
+  position: absolute;
+  top: 0;
+}
+.gl-resolution-menu li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  height: 36px;
+  line-height: 36px;
+  background-color: #292929;
+  opacity: 0.7;
+  border: none;
+}
+.gl-resolution-menu li:hover {
+  color: var(--Bl2);
+}
+.gl-resolution-menu-small {
+  right: calc(2 / 5 * 100%);
+  transform: translate(70%, -100%);
+}
+.gl-resolution-menu-big {
+  right: calc(2 / 7 * 100%);
+  transform: translate(70%, -100%);
+}
+
+/* el滑块样式调整 */
+.el-slider {
+  position: absolute !important;
+  top: 0%;
+  right: 0%;
+}
+.gl-volume-menu-small {
+  right: calc(1 / 5 * 100%);
+  transform: translate(75%, -160%);
+}
+.gl-volume-menu-big {
+  right: calc(1 / 7 * 100%);
+  transform: translate(55%, -116%);
+}
+
+.el-slider__button {
+  width: 12px !important;
+  height: 12px !important;
+  background-color: var(--Bl2) !important;
 }
 
 /* 隐藏全屏后的样式 */

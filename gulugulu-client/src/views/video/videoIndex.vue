@@ -398,6 +398,10 @@ function changeDanmu() {
 
 // 发送弹幕
 function handleSendDanmu() {
+  if (!danmuContent.value) {
+    ElMessage.error('请填写弹幕内容!');
+    return;
+  }
   // 构建弹幕实体
   const danmu = {
     videoId: videoId.value,
@@ -406,10 +410,10 @@ function handleSendDanmu() {
     type: danmuType.value,
     time: guluPlayerRef.value?.getVideoRefValue().currentTime,
   };
+  // 立即更新当前弹幕列表
+  guluPlayerRef.value.displayNewestDanmu(danmuContent.value);
   sendDanmu(danmu).then((response) => {
     ElMessage.success('发送成功!');
-    // 立即更新当前弹幕列表
-    guluPlayerRef.value.displayNewestDanmu(danmuContent.value);
     // 清除缓存
     danmuContent.value = '';
   });
@@ -452,6 +456,10 @@ function handleComment() {}
 
 // 发送评论
 function handleSendComment(comment, x) {
+  if (!rootContent.value) {
+    ElMessage.error('不许发送空评论~~喵！');
+    return;
+  }
   // 构建发送数据
   const commentVo = {
     videoId: videoId.value,

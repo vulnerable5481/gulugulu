@@ -7,7 +7,7 @@ export const useUserStore = defineStore('userinfo', () => {
   const userInfo = reactive({
     userId: '',
     userName: '',
-    avatar: require('@/assets/img/default.jpg'),
+    avatar: require('@/assets/img/user/avatar/default.jpg'),
     roleLevel: '',
     status: '',
     token: '',
@@ -25,7 +25,7 @@ export const useUserStore = defineStore('userinfo', () => {
     Object.assign(userInfo, {
       userId: '',
       userName: '',
-      avatar: require('@/assets/img/default.jpg'),
+      avatar: require('@/assets/img/user/avatar/default.jpg'),
       roleLevel: '',
       status: '',
       token: '',
