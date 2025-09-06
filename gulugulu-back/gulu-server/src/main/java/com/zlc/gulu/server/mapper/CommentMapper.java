@@ -17,8 +17,8 @@ import java.util.List;
 public interface CommentMapper extends BaseMapper<CommentEntity> {
 
     List<CommentEntity> listTenRootsOrderByTime(@Param("videoId") Integer videoId, @Param("rootId") int rootId,
-                                                @Param("status") int status, @Param("offset") int offset,
-                                                @Param("number") int number);
+                                                @Param("status") int status, @Param("offset") int offset, @Param(
+                                                        "number") int number);
 
     List<CommentEntity> listTenRootsOrderByLikeCount(@Param("videoId") Integer videoId, @Param("rootId") int rootId,
                                                      @Param("status") int status, @Param("offset") int offset,

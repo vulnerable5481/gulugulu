@@ -4,10 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zlc.gulu.common.result.Result;
 import com.zlc.gulu.pojo.entity.DanmuEntity;
+import com.zlc.gulu.server.handler.VideoWSHandler;
 import com.zlc.gulu.server.mapper.DanmuMapper;
 import com.zlc.gulu.server.service.DanmuService;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import java.io.FileInputStream;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -20,23 +23,26 @@ import java.util.concurrent.CompletableFuture;
 public class DanmuServiceImpl extends ServiceImpl<DanmuMapper, DanmuEntity>
         implements DanmuService {
 
+    @Resource
+    private VideoWSHandler videoWSHandler;
+
     /*
      *  发送弹幕
      * */
     @Override
     public Result sendDanmu(DanmuEntity danmu) {
 
-        // todo: 暂时先直接存储到mysql ，后续的思路还需要加入到ES
-        // 异步存储
-        CompletableFuture.runAsync(() -> {
-            // 保存Mysql一份
-            this.save(danmu);
+        // ws推流
+        videoWSHandler.promote(danmu);
 
-            // 保存到ES一份
+        // 异步存储存储到数据库
+        CompletableFuture.runAsync(() -> {
+            this.save(danmu);
         });
 
         return Result.success(); // 就算弹幕发送失败，也无需返回错误
     }
+
 
     /*
      *  获取弹幕列表

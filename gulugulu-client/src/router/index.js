@@ -4,6 +4,7 @@ import { initUserInfo } from '@/apis/userApi/userApi';
 import Index from '@/views/Index.vue';
 import NotFound from '@/views/NotFound.vue';
 import VideoIndex from '@/views/video/videoIndex.vue';
+import MessageIndex from '@/views/msg/MessageIndex.vue';
 
 // 按需引入
 const UploadVideo = () => import('@/views/uploadVideo/UploadVideo.vue');
@@ -18,6 +19,8 @@ const routes = [
   { path: '/upload/video', name: 'uploadVideo', component: UploadVideo, meta: { requestAuth: false } },
   // 视频详情页路由
   { path: '/video/BV:bvId', name: 'videoIndex', component: VideoIndex, meta: { requestAuth: false } },
+  //  个人消息路由
+  { path: '/msg', name: 'messageIndex', component: MessageIndex, meta: { requestAuth: false } },
   // 404路由
   {
     path: '/404notfound',

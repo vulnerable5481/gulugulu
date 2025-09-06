@@ -7,8 +7,14 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: zlc
-    url: jdbc:mysql://43.134.97.111/gulugulu?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
+#    todo:原来如此，数据库和服务器不在一个内网，导致的速度很慢！！！
+#    password: zlc
+    password: 1674472827zlC
+#    url: jdbc:mysql://43.134.97.111/gulugulu?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.1/world?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
+
+    hikari:
+      auto-commit: true
   redis:
     host: 43.134.97.111
     port: 6379
@@ -26,6 +32,16 @@ spring:
       max-request-size: 30MB
       # 设置懒加载,提高上传性能
       resolve-lazily: true
+
+  # 消息中间件 RabbitMQ相关配置
+  rabbitmq:
+    host: 43.134.97.111
+    port: 5672
+    virtual-host: /
+    username: zlc
+    password: zlc
+
+
 
 # mybatisPlus
 mybatis-plus:

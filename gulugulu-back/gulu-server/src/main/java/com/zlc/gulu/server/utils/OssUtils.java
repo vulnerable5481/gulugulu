@@ -211,7 +211,8 @@ public class OssUtils {
             }
 
             // 合并分片
-            CompleteMultipartUploadRequest completeMultipartUploadRequest = new CompleteMultipartUploadRequest(bucketName, newObjectName, uploadId, partETags);
+            CompleteMultipartUploadRequest completeMultipartUploadRequest =
+                    new CompleteMultipartUploadRequest(bucketName, newObjectName, uploadId, partETags);
             ossClient.completeMultipartUpload(completeMultipartUploadRequest);
 
             // 清理临时分片目录
@@ -265,7 +266,8 @@ public class OssUtils {
             // 分片并发上传到阿里云
             for (int i = 0; i < total; i++) {
                 String fileName = CHUNK_DIRECTORY + hash + "/" + hash + "-" + i;
-                OssUploadRunnable task = new OssUploadRunnable(fileName, bucketName, newObjectName, uploadId, i, latch, ossClient, partETags);
+                OssUploadRunnable task = new OssUploadRunnable(fileName, bucketName, newObjectName, uploadId, i,
+                        latch, ossClient, partETags);
                 threadPoolExecutor.execute(task);
             }
 
@@ -273,7 +275,8 @@ public class OssUtils {
             latch.await();
 
             // 合并分片
-            CompleteMultipartUploadRequest completeMultipartUploadRequest = new CompleteMultipartUploadRequest(bucketName, newObjectName, uploadId, partETags);
+            CompleteMultipartUploadRequest completeMultipartUploadRequest =
+                    new CompleteMultipartUploadRequest(bucketName, newObjectName, uploadId, partETags);
             ossClient.completeMultipartUpload(completeMultipartUploadRequest);
 
             // 清理临时分片目录

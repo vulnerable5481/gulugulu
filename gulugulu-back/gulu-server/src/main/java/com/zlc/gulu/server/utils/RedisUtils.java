@@ -12,7 +12,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -182,6 +181,19 @@ public class RedisUtils {
         return redisTemplate.opsForZSet().range(key, start, end);
     }
     // ZSET 相关操作 end ----------------------------------------------------------------------------------------------
+
+    // HyperLogLog 相关操作 start ----------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+    // HyperLogLog 相关操作 end ----------------------------------------------------------------------------------------------
 }
 
 

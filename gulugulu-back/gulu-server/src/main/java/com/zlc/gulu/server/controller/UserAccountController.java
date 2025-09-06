@@ -38,6 +38,12 @@ public class UserAccountController {
      * */
     @PostMapping("/exit")
     public Result exit(@RequestParam("token") String token) {
-        return userService.exit(token);
+        Result exit = null;
+        try {
+            exit = userService.exit(token);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return exit;
     }
 }

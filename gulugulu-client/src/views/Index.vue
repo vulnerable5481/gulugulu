@@ -15,6 +15,7 @@
 </template>
 
 <script setup>
+import { countPV, countUV } from '@/apis/indexApi';
 import HeaderBanner from '@/components/header/HeaderBanner.vue';
 import HeaderBar from '@/components/header/HeaderBar.vue';
 import HeaderChannel from '@/components/header/HeaderChannel.vue';
@@ -24,10 +25,26 @@ import { onMounted, ref } from 'vue';
 // 是否是固定导航栏
 let isFixedHeaderBar = ref(false);
 
+// 固定导航栏
 function handleScroll(e) {
   const srollTop = e.target.scrollTop;
   isFixedHeaderBar.value = srollTop > 200;
 }
+
+// 统计Page View , Unique Visitor
+function countPVandUV() {
+  if (document.visibilityState == 'visible') {
+    countPV();
+    // 获取用户IP地址
+    
+    countUV();
+  }
+}
+
+onMounted(() => {
+  // 统计PV，UV
+  countPVandUV();
+});
 </script>
 
 <style scoped>

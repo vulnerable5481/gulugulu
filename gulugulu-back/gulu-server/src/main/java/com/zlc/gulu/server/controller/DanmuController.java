@@ -17,8 +17,8 @@ public class DanmuController {
     private DanmuService danmuService;
 
     /*
-    *  发送弹幕
-    * */
+     *  发送弹幕
+     * */
     @PostMapping("/send")
     public Result sendDanmu(@RequestBody DanmuEntity danmu){
         return danmuService.sendDanmu(danmu);

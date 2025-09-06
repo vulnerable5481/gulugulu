@@ -201,6 +201,7 @@
                             <img class="comment-child-avatar" :src="comment.children?.[0].userAvatar" alt="" />
                             <div class="user-nickName2">{{ comment.children?.[0].userName }}</div>
                             <img class="user-level2" src="@/assets/img/grade/level_2.svg" alt="" />
+                            <div class="comment-reply" v-if="comment.replyName">回复 @{{ comment.replyName }}</div>
                             {{ comment.children?.[0].content }}
                           </div>
 
@@ -257,6 +258,10 @@
                             <img class="comment-child-avatar" :src="childComment.userAvatar" alt="" />
                             <div class="user-nickName2">{{ childComment.userName }}</div>
                             <img class="user-level2" src="@/assets/img/grade/level_2.svg" alt="" />
+                            <div class="comment-reply" v-if="childComment.replyName && childComment.replyName != childComment.userName">
+                              回复
+                              <span style="color: var(--Bl1)">@{{ childComment.replyName }}&nbsp</span>
+                            </div>
                             {{ childComment.content }}
                           </div>
                           <div class="comment-action-btn">
@@ -456,7 +461,11 @@ function handleComment() {}
 
 // 发送评论
 function handleSendComment(comment, x) {
-  if (!rootContent.value) {
+  if (x == -1 && !rootContent.value) {
+    ElMessage.error('不许发送空评论~~喵！');
+    return;
+  }
+  if (x != -1 && !response.value) {
     ElMessage.error('不许发送空评论~~喵！');
     return;
   }
@@ -1111,6 +1120,8 @@ onUnmounted(() => {
   line-height: 24px;
 }
 .comment-content2 {
+  display: flex;
+  align-items: center;
   max-height: 400px;
   color: var(--text2);
   font-size: 15px;

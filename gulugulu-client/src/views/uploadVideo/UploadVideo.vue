@@ -697,7 +697,7 @@ async function handleUpload() {
 function fhash(file) {
   return new Promise((resolve, reject) => {
     const spark = new SparkMD5.ArrayBuffer(); // 使用sparkMD5的ArrayBuffer类，读取二进制文件
-    // 稿件撞车判定机制: 为保证视频的质量,将根据整个视频内容来计算hash，咕噜咕噜不允许稿件撞车！！！
+    // 稿件撞车判定机制: 为保证视频的质量,将根据整个视频内容来计算hash，咕噜咕噜不允许稿件撞车！！！不过我加了时间戳不就报废了吗o(╥﹏╥)o
     // const timestamp = new TextEncoder().encode(Date.now().toString()); // 使用TextEncoder编码成Uint8Array
     // spark.append(timestamp); // 追加时间戳，实现同一视频也可多次上传
     const fileReader = new FileReader();

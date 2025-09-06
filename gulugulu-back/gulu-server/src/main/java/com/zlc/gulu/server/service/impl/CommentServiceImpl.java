@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 @Service
 public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentEntity> implements CommentService {
 
+    // 我们提取了一个RedisUtil，所以不需要每一个Service都创建！
     @Resource
     private StringRedisTemplate stringRedisTemplate;
     @Resource
@@ -114,46 +115,50 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, CommentEntity
         }
 
         // 缓存未命中,查询数据库
-        roots = type == 0 ? this.getBaseMapper().listTenRootsOrderByLikeCount(videoId, 0, 0,offset, 10)
+        roots = type == 0 ? this.getBaseMapper().listTenRootsOrderByLikeCount(videoId, 0, 0, offset, 10)
                 : this.getBaseMapper().listTenRootsOrderByTime(videoId, 0, 0, offset, 10);
         // 判断视频是否还存在根评论
         if (roots == null && roots.size() == 0) {
             return Collections.emptyList();
         }
 
-        // 异步更新所有根评论->reids缓存
-        CompletableFuture.runAsync(() -> {
-            // 按照时间更新
-            String newestKey = CommentConstant.COMMENT_VIDEO_NEWEST + videoId; // key
-            List<CommentEntity> newestRoots =           // value
-                    this.list(
-                            new LambdaQueryWrapper<CommentEntity>().eq(CommentEntity::getVideoId, videoId)
-                                    .eq(CommentEntity::getRootId, 0).eq(CommentEntity::getStatus, 0));
-            List<RedisUtils.ZObjTime> zObjtimeCollections = newestRoots.stream().parallel().map(root -> {
-                Integer id = root.getCommentId();
-                // 指定日期时间格式
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                // 将字符串转换为 LocalDateTime
-                LocalDateTime localDateTime = LocalDateTime.parse(root.getCreateTime(), formatter);
-                // 转换为时间戳（秒级）
-                long timestamp = localDateTime.toEpochSecond(ZoneOffset.UTC); // 使用 UTC 时区
-                return new RedisUtils.ZObjTime(id, timestamp);
-            }).collect(Collectors.toList());
-            redisUtils.zsetBatch(newestKey, zObjtimeCollections);
-            redisUtils.expire(newestKey, CommentConstant.COMMENT_VIDEO_EXPIRE, CommentConstant.COMMENT_VIDEO_TIMEUNIT);
+        // 初次加载，异步更新所有根评论->reids缓存
+        if (offset == 0) {
+            CompletableFuture.runAsync(() -> {
+                // 按照时间更新
+                String newestKey = CommentConstant.COMMENT_VIDEO_NEWEST + videoId; // key
+                List<CommentEntity> newestRoots =           // value
+                        this.list(
+                                new LambdaQueryWrapper<CommentEntity>().eq(CommentEntity::getVideoId, videoId)
+                                        .eq(CommentEntity::getRootId, 0).eq(CommentEntity::getStatus, 0));
+                List<RedisUtils.ZObjTime> zObjtimeCollections = newestRoots.stream().parallel().map(root -> {
+                    Integer id = root.getCommentId();
+                    // 指定日期时间格式
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    // 将字符串转换为 LocalDateTime
+                    LocalDateTime localDateTime = LocalDateTime.parse(root.getCreateTime(), formatter);
+                    // 转换为时间戳（秒级）
+                    long timestamp = localDateTime.toEpochSecond(ZoneOffset.UTC); // 使用 UTC 时区
+                    return new RedisUtils.ZObjTime(id, timestamp);
+                }).collect(Collectors.toList());
+                redisUtils.zsetBatch(newestKey, zObjtimeCollections);
+                redisUtils.expire(newestKey, CommentConstant.COMMENT_VIDEO_EXPIRE,
+                        CommentConstant.COMMENT_VIDEO_TIMEUNIT);
 
-            // 按照热度更新
-            String hotHkey = CommentConstant.COMMENT_VIDEO_HOT + videoId;   // key
-            List<CommentEntity> hotRoots = this.list(            // value
-                    new LambdaQueryWrapper<CommentEntity>().eq(CommentEntity::getVideoId, videoId)
-                            .eq(CommentEntity::getRootId, 0).eq(CommentEntity::getStatus, 0)
-            );
-            List<RedisUtils.ZObjScore> zObjScoreCollections = hotRoots.stream().parallel().map(root ->
-                    new RedisUtils.ZObjScore(root.getCommentId(), root.getLikeCount().doubleValue())
-            ).collect(Collectors.toList());
-            redisUtils.zsetBatchByScore(hotHkey, zObjScoreCollections);
-            redisUtils.expire(hotHkey, CommentConstant.COMMENT_VIDEO_EXPIRE, CommentConstant.COMMENT_VIDEO_TIMEUNIT);
-        });
+                // 按照热度更新
+                String hotHkey = CommentConstant.COMMENT_VIDEO_HOT + videoId;   // key
+                List<CommentEntity> hotRoots = this.list(            // value
+                        new LambdaQueryWrapper<CommentEntity>().eq(CommentEntity::getVideoId, videoId)
+                                .eq(CommentEntity::getRootId, 0).eq(CommentEntity::getStatus, 0)
+                );
+                List<RedisUtils.ZObjScore> zObjScoreCollections = hotRoots.stream().parallel().map(root ->
+                        new RedisUtils.ZObjScore(root.getCommentId(), root.getLikeCount().doubleValue())
+                ).collect(Collectors.toList());
+                redisUtils.zsetBatchByScore(hotHkey, zObjScoreCollections);
+                redisUtils.expire(hotHkey, CommentConstant.COMMENT_VIDEO_EXPIRE,
+                        CommentConstant.COMMENT_VIDEO_TIMEUNIT);
+            });
+        }
 
         return roots;
     }

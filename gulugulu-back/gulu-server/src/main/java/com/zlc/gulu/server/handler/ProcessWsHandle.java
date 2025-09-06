@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class ProcessWsHandle implements WebSocketHandler {
 
+    // todo 这里的key存到redis比较合适，不过问题不大
     // 用于存储每个 WebSocket 会话对应的 session
     private static final Map<String, WebSocketSession> sessionMap = new ConcurrentHashMap<>();
 

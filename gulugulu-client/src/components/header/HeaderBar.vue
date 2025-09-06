@@ -96,7 +96,7 @@
         </a>
       </li>
       <li class="msg-box" @mouseenter="displayMsgBubble" @mouseleave="hideMsgBubble">
-        <a href="#">
+        <a href="#" @click="navigateMsgIndex">
           <i style="font-size: 21px" class="gulu-xiaoxi iconfont"></i>
           <span>消息</span>
           <ul class="msg-bubble header-bubble" v-if="isOpenMsg">
@@ -154,6 +154,7 @@ import LoginOrRegister from '@/components/loginRegister/LoginOrRegister.vue';
 import { useUserStore } from '@/store/index.js';
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   isFixedHeaderBar: {
@@ -161,6 +162,9 @@ const props = defineProps({
     default: false,
   },
 });
+// 获取路由
+const router = useRouter();
+
 // 获取组件
 const loginOrRegister = ref();
 // 获取userStore
@@ -196,6 +200,14 @@ const vipImg = computed(() => {
     return '';
   }
 });
+
+// 跳转到消息中心
+function navigateMsgIndex(e) {
+  e.preventDefault();
+  router.push({
+    name: 'messageIndex',
+  });
+}
 
 // 显示登录界面
 function showLogin() {

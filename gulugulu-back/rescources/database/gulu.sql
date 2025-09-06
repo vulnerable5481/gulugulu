@@ -88,8 +88,8 @@ CREATE TABLE IF NOT EXISTS `gl_comment`
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8 COMMENT ='评论表';
 
--- 创建用户点赞表
-CREATE TABLE IF NOT EXISTS `gl__user_like`
+-- 创建视频点赞表
+CREATE TABLE IF NOT EXISTS `gl_user_like`
 (
     `id`          INT AUTO_INCREMENT COMMENT '主键',
     `video_id`    INT NOT NULL COMMENT '视频ID',
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `gl__user_like`
     PRIMARY KEY (`id`)
 ) ENGINE = INNODB
   AUTO_INCREMENT = 1
-  DEFAULT CHARSET = utf8 COMMENT ='关联用户点赞表';
+  DEFAULT CHARSET = utf8 COMMENT ='视频点赞表';
 
 -- 创建弹幕表
 CREATE TABLE IF NOT EXISTS `gl_danmu`

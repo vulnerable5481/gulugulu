@@ -5,19 +5,19 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zlc.gulu.common.constant.VideoConstant;
 import com.zlc.gulu.common.result.Result;
 import com.zlc.gulu.common.utils.UserHolder;
-import com.zlc.gulu.pojo.entity.CommentEntity;
+import com.zlc.gulu.pojo.entity.VideoDetailEntity;
 import com.zlc.gulu.pojo.entity.VideoEntity;
 import com.zlc.gulu.pojo.vo.VideoUploadVo;
 import com.zlc.gulu.server.mapper.VideoMapper;
-import com.zlc.gulu.server.service.CommentService;
+import com.zlc.gulu.server.service.VideoDetailService;
 import com.zlc.gulu.server.service.VideoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author 赵联城
@@ -31,7 +31,9 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, VideoEntity> impl
     @Resource
     private VideoMapper videoMapper;
     @Resource
-    private CommentService commentService;
+    private VideoDetailService videoDetailService;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public List<VideoEntity> getRandomViews() {
@@ -50,10 +52,16 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, VideoEntity> impl
         BeanUtils.copyProperties(videoUploadVo, videoEntity);
         videoEntity.setUserId(UserHolder.getUser().getUserId());
         videoEntity.setStatus(2);
-        // TODO:等以后设置了分区再说吧
         videoEntity.setMpId(1);
         videoEntity.setSpId(1);
         this.save(videoEntity);
+
+        // 初始化video_detail表
+        VideoDetailEntity videoDetailEntity = new VideoDetailEntity();
+        videoDetailEntity.setVideoId(videoEntity.getVideoId());
+        videoDetailEntity.setCommentCount(0);
+        videoDetailEntity.setLikeCount(0);
+        videoDetailService.save(videoDetailEntity);
     }
 
     @Override
@@ -69,6 +77,17 @@ public class VideoServiceImpl extends ServiceImpl<VideoMapper, VideoEntity> impl
                     VideoConstant.VideoEnum.VIDEO_QUERY_DISABLED.getMsg());
         }
         return Result.success(video);
+    }
+
+
+    /*
+    *  统计当前视频在线人数
+    * */
+    @Override
+    public Result countOnline(int vid) {
+        String key = "online:" + vid;
+        Long size = stringRedisTemplate.opsForSet().size(key);
+        return Result.success(size);
     }
 
 

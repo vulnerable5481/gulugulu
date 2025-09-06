@@ -16,6 +16,7 @@ import com.zlc.gulu.pojo.vo.UserRegisterVo;
 import com.zlc.gulu.pojo.vo.UserVo;
 import com.zlc.gulu.server.mapper.UserMapper;
 import com.zlc.gulu.server.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ import static com.zlc.gulu.common.constant.RedisConstant.LOGIN_USER_TTL;
  * @description 针对表【user】的数据库操作Service实现
  * @createDate 2024-10-11 19:13:09
  */
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> implements UserService {
 
@@ -142,7 +144,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
                                 null));
         String tokenKey = RedisConstant.LOGIN_TOKEN_USER_KEY + token;
         stringRedisTemplate.opsForHash().putAll(tokenKey, userMap);
-        // TODO：redis中保存的用户信息过期，就会导致客户端存储的用户信息携带的token找不到用户导致401
         stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.DAYS);
 
         userVo.setToken(token);
@@ -151,20 +152,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
 
     @Override
     public Result exit(String token) {
-        // 清除ThreadLocal
-        UserHolder.rmUser();
-        // 清除redis缓存
-        String key = RedisConstant.LOGIN_TOKEN_USER_KEY + token;
-        Boolean b = stringRedisTemplate.delete(key);
-        // TODO：未来可能还需要清除一些其他缓存数据、临时数据
 
-        if (b && GuluUtils.isEmpty(UserHolder.getUser())) {
+        try {
+            if (token != null) {
+                // 清除ThreadLocal
+                UserHolder.rmUser();
+                // 清除redis缓存
+                String key = RedisConstant.LOGIN_TOKEN_USER_KEY + token;
+                Boolean b = stringRedisTemplate.delete(key);
+            } else {
+                log.warn("exit called with null token"); // 即使token过期了，其实也算是退出成功
+            }
+            // 幂等: 退出成功
             return Result.success();
-        } else {
+        } catch (Exception e) {
             return Result.error(UserConstant.UserLoginEnum.USER_EXIT_FAIL.getCode(),
                     UserConstant.UserLoginEnum.USER_EXIT_FAIL.getMsg());
         }
+
+
     }
+
 
     @Override
     public UserEntity queryById(Integer userId) {

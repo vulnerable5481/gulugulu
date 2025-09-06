@@ -176,6 +176,9 @@ public class UploadServiceImp implements UploadService {
         }
     }
 
+    /*
+    * 上传视频封面
+    * */
     @Override
     public Result uploadCover(MultipartFile cover) {
         String url = ossUtils.uploadImg(cover);

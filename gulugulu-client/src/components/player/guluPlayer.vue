@@ -237,7 +237,7 @@ function changeVideoStatus(ischanged) {
   }
 }
 
-// 监听键盘按键触发对应事件
+// 监听键盘按键触发对应事件  【有一个疑问 这些键盘字符对应的数字是依据什么？答案：Ascii码值!】
 function handleKeyboard(e) {
   // 空格键 播放/暂停
   if (e.keyCode === 32 || e.key === ' ') {
